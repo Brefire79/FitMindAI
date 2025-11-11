@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../contexts/UserContext';
 import {
@@ -11,8 +11,8 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import {
-  Plus, Dumbbell, Trash2, Edit, ChevronDown, ChevronUp,
-  Clock, Zap, Target, Calendar
+  Plus, Dumbbell, Trash2, ChevronDown, ChevronUp,
+  Clock, Target
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -42,13 +42,7 @@ const Workouts = () => {
     rest: ''
   });
 
-  useEffect(() => {
-    if (user) {
-      loadWorkouts();
-    }
-  }, [user]);
-
-  const loadWorkouts = async () => {
+  const loadWorkouts = useCallback(async () => {
     try {
       const data = await getWorkouts(user.id);
       setWorkouts(data);
@@ -65,7 +59,13 @@ const Workouts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadWorkouts();
+    }
+  }, [user, loadWorkouts]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useUser } from '../contexts/UserContext';
 import { getMeasurements, getWorkouts } from '../utils/database';
@@ -9,7 +9,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
-  Weight, Activity, Flame, TrendingUp, Calendar, Dumbbell 
+  Weight, Activity, TrendingUp, Dumbbell, Calendar 
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -20,13 +20,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [chartPeriod, setChartPeriod] = useState('30'); // 7, 30, 90 dias
 
-  useEffect(() => {
-    if (user) {
-      loadData();
-    }
-  }, [user]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [measurementsData, workoutsData] = await Promise.all([
         getMeasurements(user.id),
@@ -39,7 +33,13 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [user, loadData]);
 
   if (!user) {
     return (
@@ -324,7 +324,7 @@ const Dashboard = () => {
           Atividade Recente
         </h3>
         <div className="space-y-3">
-          {measurements.slice(0, 5).map((measurement, index) => (
+          {measurements.slice(0, 5).map((measurement) => (
             <div 
               key={measurement.id}
               className="flex items-center justify-between p-3 bg-background-dark/50 rounded-lg border border-primary/10 hover:border-primary/30 transition-colors"

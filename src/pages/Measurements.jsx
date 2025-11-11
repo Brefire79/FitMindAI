@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../contexts/UserContext';
 import { 
@@ -11,7 +11,7 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import { 
-  Plus, Activity, Weight, Ruler, Trash2, Calendar,
+  Plus, Activity, Weight, Ruler, Trash2,
   Heart, Scale, TrendingUp
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -34,13 +34,7 @@ const Measurements = () => {
     notes: ''
   });
 
-  useEffect(() => {
-    if (user) {
-      loadMeasurements();
-    }
-  }, [user]);
-
-  const loadMeasurements = async () => {
+  const loadMeasurements = useCallback(async () => {
     try {
       const data = await getMeasurements(user.id);
       setMeasurements(data);
@@ -49,7 +43,13 @@ const Measurements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadMeasurements();
+    }
+  }, [user, loadMeasurements]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

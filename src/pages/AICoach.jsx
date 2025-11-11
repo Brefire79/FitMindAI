@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useUser } from '../contexts/UserContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getMeasurements, getWorkouts, saveAIRecommendation, getAIRecommendations } from '../utils/database';
-import { analyzeUserProgress, generateWorkoutPlan, answerQuestion } from '../services/aiService';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { analyzeUserProgress, answerQuestion } from '../services/aiService';
 import { 
   Bot, Sparkles, TrendingUp, MessageCircle, Zap, 
   Send, Lightbulb, Award, Target
@@ -22,20 +21,20 @@ const AICoach = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      loadRecommendations();
-    }
-  }, [user]);
-
-  const loadRecommendations = async () => {
+  const loadRecommendations = useCallback(async () => {
     try {
       const recs = await getAIRecommendations(user.id, 5);
       setRecommendations(recs);
     } catch (error) {
       console.error('Erro ao carregar recomendações:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadRecommendations();
+    }
+  }, [user, loadRecommendations]);
 
   const analyzeProgress = async () => {
     if (!settings.openaiApiKey) {
