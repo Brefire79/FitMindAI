@@ -81,8 +81,8 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-card border-t border-primary/20 backdrop-blur-custom z-50">
-          <div className="flex items-center justify-around py-2">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-card border-t border-primary/20 backdrop-blur-custom z-50 safe-area-bottom">
+          <div className="flex items-center justify-around py-3 px-2">
             {navItems.slice(0, 5).map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;

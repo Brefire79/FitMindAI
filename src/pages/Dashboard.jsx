@@ -79,7 +79,7 @@ const Dashboard = () => {
   const weightChartData = filterByPeriod(measurements)
     .reverse()
     .map(m => ({
-      date: format(new Date(m.date), 'dd/MM', { locale: ptBR }),
+      date: format(new Date(m.date), 'dd/MM'),
       peso: m.weight,
       imc: m.imc
     }));
@@ -88,7 +88,7 @@ const Dashboard = () => {
     .reverse()
     .filter(m => m.bodyFat && m.leanMass)
     .map(m => ({
-      date: format(new Date(m.date), 'dd/MM', { locale: ptBR }),
+      date: format(new Date(m.date), 'dd/MM'),
       gordura: m.bodyFat,
       massaMagra: m.leanMass
     }));

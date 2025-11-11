@@ -10,6 +10,7 @@
   body {
     @apply bg-gradient-dark font-body text-white antialiased;
     min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -18,6 +19,11 @@
 }
 
 @layer components {
+  /* Safe Area */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
   /* Botões */
   .btn-primary {
     @apply bg-gradient-primary text-white font-semibold py-3 px-6 rounded-lg

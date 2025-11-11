@@ -17,15 +17,17 @@ function App() {
         <UserProvider>
           <div className="min-h-screen bg-gradient-dark">
             <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/measurements" element={<Measurements />} />
-              <Route path="/workouts" element={<Workouts />} />
-              <Route path="/ai-coach" element={<AICoach />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
+            <main className="pb-20 md:pb-0">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/measurements" element={<Measurements />} />
+                <Route path="/workouts" element={<Workouts />} />
+                <Route path="/ai-coach" element={<AICoach />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+            </main>
           </div>
         </UserProvider>
       </SettingsProvider>
