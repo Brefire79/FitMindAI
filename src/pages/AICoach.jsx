@@ -87,6 +87,11 @@ const AICoach = () => {
     const userMessage = { role: 'user', content: question };
     setChatHistory(prev => [...prev, userMessage]);
     setQuestion('');
+    setGenerating(true);
+
+    try {
+      const answer = await answerQuestion(question, chatHistory);
+      const aiMessage = { role: 'assistant', content: answer };
       setChatHistory(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Erro ao responder pergunta:', error);
@@ -104,11 +109,6 @@ const AICoach = () => {
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
         content: errorMessage
-      }]);
-    } finally {rror('Erro ao responder pergunta:', error);
-      setChatHistory(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Desculpe, não consegui processar sua pergunta. Verifique sua API Key.' 
       }]);
     } finally {
       setGenerating(false);

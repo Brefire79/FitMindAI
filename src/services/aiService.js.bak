@@ -1,0 +1,429 @@
+import axios from 'axios';
+
+let OPENAI_API_KEY = null;
+let GEMINI_API_KEY = null;
+let AI_PROVIDER = 'openai'; // 'openai' ou 'gemini'
+
+export const initializeAI = (config) => {
+  if (config.provider === 'openai') {
+    if (!config.apiKey) {
+      throw new Error('API Key da OpenAI não configurada');
+    }
+    OPENAI_API_KEY = config.apiKey;
+    AI_PROVIDER = 'openai';
+  } else if (config.provider === 'gemini') {
+    if (!config.apiKey) {
+      throw new Error('API Key do Gemini não configurada');
+    }
+    GEMINI_API_KEY = config.apiKey;
+    AI_PROVIDER = 'gemini';
+  }
+  return true;
+};
+
+// Manter compatibilidade com código antigo
+export const initializeOpenAI = (apiKey) => {
+  return initializeAI({ provider: 'openai', apiKey });
+};
+
+export const getAIClient = () => {
+  if (AI_PROVIDER === 'openai') {
+    if (!OPENAI_API_KEY) {
+      throw new Error('OpenAI não foi inicializada. Configure sua API Key nas configurações.');
+    }
+    return { provider: 'openai', apiKey: OPENAI_API_KEY };
+  } else if (AI_PROVIDER === 'gemini') {
+    if (!GEMINI_API_KEY) {
+      throw new Error('Gemini não foi inicializado. Configure sua API Key nas configurações.');
+    }
+    return { provider: 'gemini', apiKey: GEMINI_API_KEY };
+  }
+  throw new Error('Nenhum provedor de IA configurado');
+};
+
+// Manter compatibilidade com código antigo
+export const getOpenAIClient = () => {
+  const client = getAIClient();
+  return client.apiKey;
+};
+
+// Função auxiliar para fazer chamadas de IA
+const callAI = async (prompt, temperature = 0.7, maxTokens = 1000) => {
+  const client = getAIClient();
+  
+  if (client.provider === 'openai') {
+    return await callOpenAI(prompt, client.apiKey, temperature, maxTokens);
+  } else if (client.provider === 'gemini') {
+    return await callGemini(prompt, client.apiKey, temperature, maxTokens);
+  }
+};
+
+// Chamada para OpenAI
+const callOpenAI = async (prompt, apiKey, temperature, maxTokens) => {
+  const response = await axios.post(
+    'https://api.openai.com/v1/chat/completions',
+    {
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature,
+      max_tokens: maxTokens,
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  return response.data.choices[0].message.content;
+};
+
+// Chamada para Gemini
+const callGemini = async (prompt, apiKey, temperature, maxTokens) => {
+  const response = await axios.post(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    {
+      contents: [{
+        parts: [{ text: prompt }]
+      }],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: maxTokens,
+      }
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  return response.data.candidates[0].content.parts[0].text;
+};
+
+export const analyzeUserProgress = async (userData, measurements, workouts) => {
+  try {
+    const client = getAIClient();
+    
+    // Validação específica para OpenAI
+    if (client.provider === 'openai' && (!client.apiKey || !client.apiKey.startsWith('sk-'))) {
+      throw new Error('API Key da OpenAI inválida. A chave deve começar com "sk-"');
+    }
+    
+    // Preparar dados para análise
+    const latestMeasurements = measurements.slice(0, 5);
+    const recentWorkouts = workouts.slice(0, 10);
+    
+    const prompt = `
+Você é um personal trainer especializado e nutricionista esportivo. Analise os dados do usuário e forneça recomendações personalizadas:
+
+**DADOS DO USUÁRIO:**
+- Nome: ${userData.name}
+- Idade: ${userData.age} anos
+- Sexo: ${userData.gender}
+- Altura: ${userData.height} cm
+- Objetivo: ${userData.goal}
+
+**MEDIÇÕES RECENTES:**
+${latestMeasurements.map((m, i) => `
+Medição ${i + 1} (${new Date(m.date).toLocaleDateString('pt-BR')}):
+- Peso: ${m.weight} kg
+- IMC: ${m.imc}
+- Gordura Corporal: ${m.bodyFat || 'N/A'}%
+- Massa Magra: ${m.leanMass || 'N/A'} kg
+`).join('\n')}
+
+**TREINOS RECENTES:**
+${recentWorkouts.length > 0 ? recentWorkouts.map((w, i) => `
+Treino ${i + 1} (${new Date(w.date).toLocaleDateString('pt-BR')}):
+- Tipo: ${w.type}
+- Grupo Muscular: ${w.muscleGroup}
+- Duração: ${w.duration} min
+- Intensidade: ${w.intensity}
+`).join('\n') : 'Nenhum treino registrado ainda.'}
+
+**ANÁLISE SOLICITADA:**
+1. Avalie o progresso atual do usuário em relação ao objetivo
+2. Identifique pontos fortes e áreas que precisam melhorar
+3. Forneça 3-5 recomendações específicas para os próximos treinos
+4. Sugira ajustes na frequência, intensidade ou tipo de exercício
+5. Dê dicas de nutrição e recuperação
+
+Responda em formato JSON com a seguinte estrutura:
+{
+  "summary": "Resumo geral do progresso (2-3 frases)",
+  "strengths": ["ponto forte 1", "ponto forte 2"],
+  "improvements": ["área a melhorar 1", "área a melhorar 2"],
+  "recommendations": [
+    {
+      "title": "Título da recomendação",
+      "description": "Descrição detalhada",
+      "priority": "high|medium|low"
+    }
+  ],
+  "nutritionTips": ["dica 1", "dica 2"],
+  "motivationalMessage": "Mensagem motivacional personalizada"
+}
+`;
+
+    // Fazer a chamada usando a função genérica
+    const responseText = await callAI(prompt, 0.7, 1500);
+    
+    // Tentar parsear como JSON
+    let analysis;
+    try {
+      analysis = JSON.parse(responseText);
+    } catch (parseError) {
+      // Se falhar, criar estrutura básica
+      analysis = {
+        summary: responseText.substring(0, 200),
+        strengths: ['Progresso em análise'],
+        improvements: ['Aguarde análise detalhada'],
+        recommendations: [{
+          title: 'Análise em Processamento',
+          description: responseText,
+          priority: 'medium'
+        }],
+        nutritionTips: ['Mantenha uma alimentação equilibrada'],
+        motivationalMessage: 'Continue firme no seu objetivo!'
+      };
+    }
+    
+    return analysis;
+    
+  } catch (error) {
+    console.error('Erro ao analisar progresso:', error);
+    
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 429) {
+        throw new Error('Erro 429: Limite de requisições excedido. Aguarde alguns segundos e tente novamente.');
+      } else if (status === 401) {
+        throw new Error('Erro 401: API Key inválida ou expirada. Verifique sua chave.');
+      } else if (status === 400) {
+        throw new Error('Erro 400: Requisição inválida. Verifique os dados enviados.');
+      }
+    }
+    
+    throw new Error(`Não foi possível gerar análise. ${error.message || 'Verifique sua API Key e conexão.'}`);
+  }
+};
+
+export const generateWorkoutPlan = async (userData, goal, focusArea, duration, level) => {
+  try {
+    
+    const prompt = `
+Crie um plano de treino personalizado com os seguintes parâmetros:
+
+**PERFIL:**
+- Idade: ${userData.age} anos
+- Sexo: ${userData.gender}
+- Nível: ${level}
+- Objetivo: ${goal}
+- Foco: ${focusArea}
+- Duração desejada: ${duration} minutos
+
+Gere um treino completo em formato JSON:
+{
+  "workoutName": "Nome do treino",
+  "description": "Descrição breve",
+  "warmup": "Aquecimento sugerido (5-10 min)",
+  "exercises": [
+    {
+      "name": "Nome do exercício",
+      "muscleGroup": "Grupo muscular",
+      "sets": 3,
+      "reps": "10-12",
+      "rest": 60,
+      "notes": "Dicas de execução"
+    }
+  ],
+  "cooldown": "Alongamento/relaxamento (5 min)",
+  "tips": ["dica 1", "dica 2"]
+}
+`;
+
+    const response = await callAI(prompt, 0.8, 1200);
+    
+    try {
+      return JSON.parse(response);
+    } catch {
+      return {
+        workoutPlan: {
+          name: 'Plano Personalizado',
+          description: response,
+          exercises: []
+        }
+      };
+    }
+    
+  } catch (error) {
+    console.error('Erro ao gerar plano de treino:', error);
+    
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 429) {
+        throw new Error('Erro 429: Limite de requisições excedido.');
+      } else if (status === 401) {
+        throw new Error('Erro 401: API Key inválida.');
+      }
+    }
+    
+    throw new Error(`Não foi possível gerar o plano de treino. ${error.message || ''}`);
+  }
+};
+
+export const getMealSuggestions = async (userData, goal, dietType = 'balanced') => {
+  try {
+    
+    const prompt = `
+Sugira um plano alimentar para:
+
+**PERFIL:**
+- Idade: ${userData.age} anos
+- Peso: ${userData.weight} kg
+- Altura: ${userData.height} cm
+- Objetivo: ${goal}
+- Tipo de dieta: ${dietType}
+
+Forneça sugestões em JSON:
+{
+  "dailyCalories": 2000,
+  "macros": {
+    "protein": "25%",
+    "carbs": "50%",
+    "fats": "25%"
+  },
+  "meals": [
+    {
+      "meal": "Café da manhã",
+      "suggestions": ["opção 1", "opção 2"],
+      "timing": "7h-8h"
+    }
+  ],
+  "hydration": "Recomendação de água",
+  "supplements": ["suplemento 1", "suplemento 2"],
+  "tips": ["dica 1", "dica 2"]
+}
+`;
+
+    const response = await callAI(prompt, 0.7, 1000);
+    
+    try {
+      return JSON.parse(response);
+    } catch {
+      return {
+        mealPlan: {
+          breakfast: response.substring(0, 200),
+          meals: []
+        }
+      };
+    }
+    
+  } catch (error) {
+    console.error('Erro ao gerar sugestões alimentares:', error);
+    
+    if (error.response?.status === 429) {
+      throw new Error('Erro 429: Limite de requisições excedido.');
+    } else if (error.response?.status === 401) {
+      throw new Error('Erro 401: API Key inválida.');
+    }
+    
+    throw new Error(`Não foi possível gerar sugestões alimentares. ${error.message || ''}`);
+  }
+};
+
+export const answerQuestion = async (question, chatHistory = []) => {
+  try {
+  try {
+    const apiKey = getOpenAIClient();
+    
+    const systemPrompt = `Você é um assistente fitness especializado. Responda perguntas sobre treino, nutrição e saúde de forma clara e profissional.
+    
+Contexto do usuário:
+- Nome: ${userData.name}
+- Idade: ${userData.age} anos
+- Objetivo: ${userData.goal}
+
+${context}`;
+
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: question
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 500
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return response.data.choices[0].message.content;
+    
+  } catch (error) {
+    console.error('Erro ao responder pergunta:', error);
+    
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 429) {
+        throw new Error('Erro 429: Você excedeu o limite de requisições. Aguarde 20 segundos e tente novamente.');
+      } else if (status === 401) {
+        throw new Error('Erro 401: API Key inválida ou expirada. Atualize sua chave nas Configurações.');
+      } else if (status === 400) {
+        throw new Error('Erro 400: Requisição inválida. Tente reformular sua pergunta.');
+      }
+    }
+    
+    throw new Error(`Não foi possível processar sua pergunta. ${error.message || 'Verifique sua conexão.'}`);
+  }
+};
+
+// Função auxiliar para obter recomendações gerais de IA
+export const getAIRecommendation = async (userData) => {
+  try {
+    const apiKey = getOpenAIClient();
+    
+    const response = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'Você é um personal trainer e nutricionista virtual que analisa dados físicos e de treino e gera recomendações objetivas e seguras.'
+          },
+          {
+            role: 'user',
+            content: `Dados do usuário: ${JSON.stringify(userData)}. Gere dicas de treino e evolução.`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 800
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error('Erro na IA:', error);
+    return 'Não foi possível gerar uma recomendação agora. Tente novamente.';
+  }
+};

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { getSetting, saveSetting, getAllSettings } from '../utils/database';
-import { initializeOpenAI } from '../services/aiService';
+import { initializeAI } from '../services/aiService';
 
 const SettingsContext = createContext();
 
@@ -12,7 +12,9 @@ const DEFAULT_SETTINGS = {
     height: 'cm'
   },
   notifications: true,
-  openaiApiKey: ''
+  aiProvider: 'openai', // 'openai' ou 'gemini'
+  openaiApiKey: '',
+  geminiApiKey: ''
 };
 
 export const SettingsProvider = ({ children }) => {
@@ -29,12 +31,18 @@ export const SettingsProvider = ({ children }) => {
       const mergedSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
       setSettings(mergedSettings);
       
-      // Inicializar OpenAI se a chave estiver configurada
-      if (mergedSettings.openaiApiKey) {
+      // Inicializar IA se as chaves estiverem configuradas
+      if (mergedSettings.aiProvider === 'openai' && mergedSettings.openaiApiKey) {
         try {
-          initializeOpenAI(mergedSettings.openaiApiKey);
+          initializeAI({ provider: 'openai', apiKey: mergedSettings.openaiApiKey });
         } catch (error) {
           console.error('Erro ao inicializar OpenAI:', error);
+        }
+      } else if (mergedSettings.aiProvider === 'gemini' && mergedSettings.geminiApiKey) {
+        try {
+          initializeAI({ provider: 'gemini', apiKey: mergedSettings.geminiApiKey });
+        } catch (error) {
+          console.error('Erro ao inicializar Gemini:', error);
         }
       }
     } catch (error) {
@@ -52,9 +60,16 @@ export const SettingsProvider = ({ children }) => {
         [key]: value
       }));
       
-      // Se a chave da OpenAI for atualizada, reinicializar
-      if (key === 'openaiApiKey' && value) {
-        initializeOpenAI(value);
+      // Reinicializar IA quando necessário
+      if (key === 'aiProvider') {
+        const apiKey = value === 'openai' ? settings.openaiApiKey : settings.geminiApiKey;
+        if (apiKey) {
+          initializeAI({ provider: value, apiKey });
+        }
+      } else if (key === 'openaiApiKey' && value && settings.aiProvider === 'openai') {
+        initializeAI({ provider: 'openai', apiKey: value });
+      } else if (key === 'geminiApiKey' && value && settings.aiProvider === 'gemini') {
+        initializeAI({ provider: 'gemini', apiKey: value });
       }
     } catch (error) {
       console.error('Erro ao atualizar configuração:', error);
