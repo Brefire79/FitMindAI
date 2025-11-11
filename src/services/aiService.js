@@ -1,46 +1,16 @@
 import axios from 'axios';
 
-let OPENAI_API_KEY = null;
 let GEMINI_API_KEY = null;
-let AI_PROVIDER = 'openai';
 
-export const initializeAI = ({ provider, apiKey }) => {
-  if (provider === 'openai') {
-    if (!apiKey) throw new Error('API Key da OpenAI não configurada');
-    OPENAI_API_KEY = apiKey;
-    AI_PROVIDER = 'openai';
-  } else if (provider === 'gemini') {
-    if (!apiKey) throw new Error('API Key do Gemini não configurada');
-    GEMINI_API_KEY = apiKey;
-    AI_PROVIDER = 'gemini';
-  } else {
-    throw new Error('Provedor de IA inválido');
-  }
+export const initializeAI = (apiKey) => {
+  if (!apiKey) throw new Error('API Key do Gemini não configurada');
+  GEMINI_API_KEY = apiKey;
   return true;
 };
 
-export const initializeOpenAI = (apiKey) => initializeAI({ provider: 'openai', apiKey });
-
 export const getAIClient = () => {
-  if (AI_PROVIDER === 'openai') {
-    if (!OPENAI_API_KEY) throw new Error('OpenAI não foi inicializada. Configure sua API Key.');
-    return { provider: 'openai', apiKey: OPENAI_API_KEY };
-  }
-  if (AI_PROVIDER === 'gemini') {
-    if (!GEMINI_API_KEY) throw new Error('Gemini não foi inicializado. Configure sua API Key.');
-    return { provider: 'gemini', apiKey: GEMINI_API_KEY };
-  }
-  throw new Error('Nenhum provedor de IA configurado');
-};
-
-export const getOpenAIClient = () => getAIClient().apiKey;
-
-const callOpenAI = async (prompt, apiKey, temperature, maxTokens) => {
-  const res = await axios.post('https://api.openai.com/v1/chat/completions',
-    { model: 'gpt-4o-mini', messages: [{ role: 'user', content: prompt }], temperature, max_tokens: maxTokens },
-    { headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' } }
-  );
-  return res.data.choices?.[0]?.message?.content ?? '';
+  if (!GEMINI_API_KEY) throw new Error('Gemini não foi inicializado. Configure sua API Key.');
+  return GEMINI_API_KEY;
 };
 
 const callGemini = async (prompt, apiKey, temperature, maxTokens) => {
@@ -52,17 +22,12 @@ const callGemini = async (prompt, apiKey, temperature, maxTokens) => {
 };
 
 const callAI = async (prompt, temperature = 0.7, maxTokens = 1000) => {
-  const client = getAIClient();
-  if (client.provider === 'openai') return callOpenAI(prompt, client.apiKey, temperature, maxTokens);
-  if (client.provider === 'gemini') return callGemini(prompt, client.apiKey, temperature, maxTokens);
-  throw new Error('Provedor de IA não suportado');
+  const apiKey = getAIClient();
+  return callGemini(prompt, apiKey, temperature, maxTokens);
 };
 
 export const analyzeUserProgress = async (userData, measurements, workouts) => {
   try {
-    const client = getAIClient();
-    if (client.provider === 'openai' && (!client.apiKey || !client.apiKey.startsWith('sk-')))
-      throw new Error('API Key da OpenAI inválida. A chave deve começar com "sk-"');
     const latestMeasurements = (measurements || []).slice(0, 5);
     const recentWorkouts = (workouts || []).slice(0, 10);
     const prompt = `Você é um personal trainer e nutricionista esportivo. Analise os dados e retorne JSON.\n\nUSUÁRIO:\n- Nome: ${userData?.name}\n- Idade: ${userData?.age}\n- Sexo: ${userData?.gender}\n- Altura: ${userData?.height}\n- Objetivo: ${userData?.goal}\n\nMEDIÇÕES:\n${latestMeasurements.map((m, i) => `#${i + 1} ${new Date(m.date).toLocaleDateString('pt-BR')} | Peso: ${m.weight} | IMC: ${m.imc} | GC: ${m.bodyFat ?? '-'}% | MM: ${m.leanMass ?? '-'}`).join('\n') || '-'}\n\nTREINOS:\n${recentWorkouts.map((w, i) => `#${i + 1} ${new Date(w.date).toLocaleDateString('pt-BR')} | Tipo: ${w.type} | Duração: ${w.duration} | Intensidade: ${w.intensity}`).join('\n') || '-'}\n\nEstrutura JSON:\n{"summary":"2-3 frases","strengths":["..."],"improvements":["..."],"recommendations":[{"title":"...","description":"...","priority":"high|medium|low"}],"nutritionTips":["..."],"motivationalMessage":"..."}`;

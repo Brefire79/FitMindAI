@@ -37,13 +37,8 @@ const AICoach = () => {
   }, [user, loadRecommendations]);
 
   const analyzeProgress = async () => {
-    if (!settings.openaiApiKey) {
-      alert('⚠️ Por favor, configure sua API Key da OpenAI nas Configurações primeiro.\n\nAcesse: Configurações > API Key OpenAI');
-      return;
-    }
-
-    if (!settings.openaiApiKey.startsWith('sk-')) {
-      alert('⚠️ API Key inválida. A chave deve começar com "sk-"\n\nVerifique sua chave em: https://platform.openai.com/api-keys');
+    if (!settings.geminiApiKey) {
+      alert('⚠️ Por favor, configure sua API Key do Gemini nas Configurações primeiro.\n\nAcesse: Configurações > API Key Gemini\n\nA API do Gemini é gratuita! 🎉');
       return;
     }
 
@@ -78,8 +73,8 @@ const AICoach = () => {
     e.preventDefault();
     if (!question.trim()) return;
 
-    if (!settings.openaiApiKey) {
-      alert('Por favor, configure sua API Key da OpenAI nas Configurações primeiro.');
+    if (!settings.geminiApiKey) {
+      alert('⚠️ Por favor, configure sua API Key do Gemini nas Configurações primeiro.\n\nA API do Gemini é gratuita! 🎉');
       return;
     }
 
@@ -98,7 +93,7 @@ const AICoach = () => {
       let errorMessage = 'Desculpe, não consegui processar sua pergunta.';
       
       if (error.message.includes('429')) {
-        errorMessage = '⚠️ Limite de requisições excedido. Aguarde alguns segundos e tente novamente.\n\nSe o problema persistir, verifique sua quota da OpenAI.';
+        errorMessage = '⚠️ Limite de requisições excedido. Aguarde alguns segundos e tente novamente.';
       } else if (error.message.includes('401')) {
         errorMessage = '🔑 API Key inválida ou expirada. Por favor, verifique sua chave nas Configurações.';
       } else if (error.message.includes('API Key')) {

@@ -11,8 +11,6 @@ import 'jspdf-autotable';
 
 const Settings = () => {
   const { settings, updateSetting, updateUnits, toggleTheme } = useSettings();
-  const [aiProvider, setAiProvider] = useState(settings.aiProvider || 'openai');
-  const [openaiApiKey, setOpenaiApiKey] = useState(settings.openaiApiKey || '');
   const [geminiApiKey, setGeminiApiKey] = useState(settings.geminiApiKey || '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -20,10 +18,7 @@ const Settings = () => {
   const handleSaveAISettings = async () => {
     setSaving(true);
     try {
-      await updateSetting('aiProvider', aiProvider);
-      if (aiProvider === 'openai' && openaiApiKey) {
-        await updateSetting('openaiApiKey', openaiApiKey);
-      } else if (aiProvider === 'gemini' && geminiApiKey) {
+      if (geminiApiKey) {
         await updateSetting('geminiApiKey', geminiApiKey);
       }
       setMessage('✓ Configurações de IA salvas com sucesso!');
@@ -215,105 +210,46 @@ const Settings = () => {
             </h2>
           </div>
           
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-4">
             <div className="flex items-start space-x-2">
-              <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-yellow-200">
-                <p className="font-semibold mb-1">Escolha seu provedor de IA:</p>
-                <p>Você pode usar OpenAI (GPT) ou Google Gemini para os recursos de inteligência artificial.</p>
+              <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-200">
+                <p className="font-semibold mb-1">API Gratuita do Google Gemini</p>
+                <p>Configure sua chave de API do Gemini para usar todos os recursos de IA do FitMind gratuitamente.</p>
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
-            {/* Seleção de Provedor */}
+            {/* Gemini API Key */}
             <div>
-              <label className="label">Provedor de IA</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setAiProvider('openai')}
-                  className={`
-                    p-4 rounded-lg border-2 transition-all
-                    ${aiProvider === 'openai'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-700 bg-dark-lighter text-gray-400 hover:border-gray-600'
-                    }
-                  `}
+              <label className="label">Gemini API Key</label>
+              <input
+                type="password"
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder="AIza..."
+                className="input-field font-mono"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                <a 
+                  href="https://makersuite.google.com/app/apikey" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline"
                 >
-                  <div className="font-semibold">OpenAI</div>
-                  <div className="text-xs mt-1">GPT-4o-mini</div>
-                </button>
-                <button
-                  onClick={() => setAiProvider('gemini')}
-                  className={`
-                    p-4 rounded-lg border-2 transition-all
-                    ${aiProvider === 'gemini'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-gray-700 bg-dark-lighter text-gray-400 hover:border-gray-600'
-                    }
-                  `}
-                >
-                  <div className="font-semibold">Google Gemini</div>
-                  <div className="text-xs mt-1">Gemini 1.5 Flash</div>
-                </button>
-              </div>
+                  Obtenha sua chave Gemini gratuita aqui →
+                </a>
+              </p>
             </div>
 
-            {/* OpenAI API Key */}
-            {aiProvider === 'openai' && (
-              <div>
-                <label className="label">OpenAI API Key</label>
-                <input
-                  type="password"
-                  value={openaiApiKey}
-                  onChange={(e) => setOpenaiApiKey(e.target.value)}
-                  placeholder="sk-..."
-                  className="input-field font-mono"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  <a 
-                    href="https://platform.openai.com/api-keys" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-accent hover:underline"
-                  >
-                    Obtenha sua chave OpenAI aqui →
-                  </a>
-                </p>
-              </div>
-            )}
-
-            {/* Gemini API Key */}
-            {aiProvider === 'gemini' && (
-              <div>
-                <label className="label">Gemini API Key</label>
-                <input
-                  type="password"
-                  value={geminiApiKey}
-                  onChange={(e) => setGeminiApiKey(e.target.value)}
-                  placeholder="AIza..."
-                  className="input-field font-mono"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  <a 
-                    href="https://makersuite.google.com/app/apikey" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-accent hover:underline"
-                  >
-                    Obtenha sua chave Gemini aqui →
-                  </a>
-                </p>
-              </div>
-            )}
-
             <p className="text-xs text-gray-500">
-              🔒 Suas chaves são armazenadas localmente e nunca são enviadas para nossos servidores
+              🔒 Sua chave é armazenada localmente e nunca é enviada para nossos servidores
             </p>
 
             <motion.button
               onClick={handleSaveAISettings}
-              disabled={saving || (aiProvider === 'openai' && !openaiApiKey) || (aiProvider === 'gemini' && !geminiApiKey)}
+              disabled={saving || !geminiApiKey}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="btn-primary flex items-center space-x-2"
