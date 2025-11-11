@@ -1,0 +1,27 @@
+{
+  "name": "FitMind AI - Seu Coach Inteligente",
+  "short_name": "FitMind AI",
+  "description": "Gerenciamento inteligente de treinos e medições corporais com IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#001F3F",
+  "theme_color": "#0A84FF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "lifestyle"],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}

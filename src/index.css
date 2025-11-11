@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-800;
+  }
+  
+  body {
+    @apply bg-gradient-dark font-body text-white antialiased;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Botões */
+  .btn-primary {
+    @apply bg-gradient-primary text-white font-semibold py-3 px-6 rounded-lg
+           shadow-glow hover:shadow-glow-lg transition-all duration-300
+           hover:scale-105 active:scale-95;
+  }
+
+  .btn-accent {
+    @apply bg-gradient-accent text-background-darker font-semibold py-3 px-6 rounded-lg
+           shadow-glow-accent hover:shadow-glow-accent transition-all duration-300
+           hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-background-card text-white font-semibold py-3 px-6 rounded-lg
+           border-2 border-primary/30 hover:border-primary transition-all duration-300
+           hover:shadow-glow;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-gradient-card rounded-xl p-6 shadow-lg
+           border border-primary/20 hover:border-primary/40 
+           transition-all duration-300;
+  }
+
+  .card-glow {
+    @apply card shadow-glow hover:shadow-glow-lg;
+  }
+
+  /* Inputs */
+  .input-field {
+    @apply bg-background-card/50 text-white border-2 border-primary/30
+           rounded-lg px-4 py-3 w-full font-body
+           focus:outline-none focus:border-primary focus:shadow-glow
+           transition-all duration-300
+           placeholder:text-gray-400;
+  }
+
+  .select-field {
+    @apply input-field cursor-pointer;
+  }
+
+  /* Labels */
+  .label {
+    @apply text-sm font-semibold text-primary-light mb-2 block;
+  }
+
+  /* Headings Especiais */
+  .heading-glow {
+    @apply font-display text-transparent bg-clip-text bg-gradient-primary
+           drop-shadow-[0_0_15px_rgba(10,132,255,0.5)];
+  }
+
+  /* Container Principal */
+  .main-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  /* Grid Responsivo */
+  .grid-auto {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  /* Animação de Loading */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary;
+  }
+
+  /* Status Badge */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-success {
+    @apply badge bg-green-500/20 text-green-400 border border-green-500/50;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-500/20 text-yellow-400 border border-yellow-500/50;
+  }
+
+  .badge-info {
+    @apply badge bg-primary/20 text-primary-light border border-primary/50;
+  }
+}
+
+@layer utilities {
+  /* Efeito Glow em Texto */
+  .text-glow {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+
+  /* Gradiente de Texto */
+  .text-gradient-primary {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+
+  .text-gradient-accent {
+    @apply bg-gradient-accent bg-clip-text text-transparent;
+  }
+
+  /* Scrollbar Customizada */
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    @apply bg-background-dark rounded-full;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    @apply bg-primary/50 rounded-full hover:bg-primary/70;
+  }
+
+  /* Backdrop Blur */
+  .backdrop-blur-custom {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+/* Animações Personalizadas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Efeito de Neon nos Cards ao Hover */
+.neon-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #0A84FF, #FFD60A, #0A84FF);
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  animation: neonRotate 3s linear infinite;
+}
+
+.neon-border:hover::before {
+  opacity: 0.6;
+}
+
+@keyframes neonRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

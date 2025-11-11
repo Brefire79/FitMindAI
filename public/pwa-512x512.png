@@ -1,0 +1,31 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="128" fill="url(#gradient)"/>
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="512" y2="512">
+      <stop offset="0%" stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#001F3F"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Robot Icon -->
+  <g transform="translate(128, 128)">
+    <circle cx="128" cy="80" r="60" fill="#FFD60A" opacity="0.3"/>
+    <rect x="98" y="50" width="60" height="60" rx="10" fill="#FFD60A"/>
+    <circle cx="118" cy="70" r="8" fill="#001F3F"/>
+    <circle cx="138" cy="70" r="8" fill="#001F3F"/>
+    <rect x="113" y="85" width="30" height="5" rx="2.5" fill="#001F3F"/>
+    
+    <!-- Body -->
+    <rect x="88" y="120" width="80" height="100" rx="15" fill="white" opacity="0.9"/>
+    <line x1="128" y1="110" x2="128" y2="120" stroke="#FFD60A" stroke-width="4"/>
+    
+    <!-- Arms -->
+    <rect x="60" y="140" width="28" height="60" rx="14" fill="white" opacity="0.8"/>
+    <rect x="168" y="140" width="28" height="60" rx="14" fill="white" opacity="0.8"/>
+    
+    <!-- Dumbbell -->
+    <circle cx="45" cy="170" r="10" fill="#0A84FF"/>
+    <rect x="40" y="165" width="30" height="10" fill="#0A84FF"/>
+    <circle cx="70" cy="170" r="10" fill="#0A84FF"/>
+  </g>
+</svg>
