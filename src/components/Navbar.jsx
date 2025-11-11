@@ -82,13 +82,13 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-card border-t border-primary/20 backdrop-blur-custom z-50 safe-area-bottom">
-          <div className="flex items-center justify-around py-3 px-2">
-            {navItems.slice(0, 5).map((item) => {
+          <div className="flex items-center gap-2 overflow-x-auto py-3 px-2">
+            {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
 
               return (
-                <Link key={item.path} to={item.path} className="flex-1">
+                <Link key={item.path} to={item.path} className="flex-shrink-0 flex-1">
                   <motion.div
                     whileTap={{ scale: 0.9 }}
                     className={`
@@ -104,6 +104,25 @@ const Navbar = () => {
             })}
           </div>
         </div>
+
+        {/* Floating Settings Button (Mobile Only) */}
+        <Link to="/settings" className="md:hidden">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className={`
+              fixed bottom-24 right-4 z-40
+              w-14 h-14 rounded-full
+              bg-gradient-primary shadow-glow
+              flex items-center justify-center
+              ${location.pathname === '/settings' ? 'ring-4 ring-primary/30' : ''}
+            `}
+          >
+            <Settings className="w-6 h-6 text-white" />
+          </motion.div>
+        </Link>
       </div>
     </nav>
   );
