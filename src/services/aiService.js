@@ -22,6 +22,10 @@ export const analyzeUserProgress = async (userData, measurements, workouts) => {
   try {
     const apiKey = getOpenAIClient();
     
+    if (!apiKey || !apiKey.startsWith('sk-')) {
+      throw new Error('API Key inválida. A chave deve começar com "sk-"');
+    }
+    
     // Preparar dados para análise
     const latestMeasurements = measurements.slice(0, 5);
     const recentWorkouts = workouts.slice(0, 10);
@@ -109,7 +113,19 @@ Responda em formato JSON com a seguinte estrutura:
     
   } catch (error) {
     console.error('Erro ao analisar progresso:', error);
-    throw new Error('Não foi possível gerar análise. Verifique sua API Key e conexão.');
+    
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 429) {
+        throw new Error('Erro 429: Limite de requisições excedido. Aguarde alguns segundos e tente novamente.');
+      } else if (status === 401) {
+        throw new Error('Erro 401: API Key inválida ou expirada. Verifique sua chave.');
+      } else if (status === 400) {
+        throw new Error('Erro 400: Requisição inválida. Verifique os dados enviados.');
+      }
+    }
+    
+    throw new Error(`Não foi possível gerar análise. ${error.message || 'Verifique sua API Key e conexão.'}`);
   }
 };
 
@@ -178,7 +194,17 @@ Gere um treino completo em formato JSON:
     
   } catch (error) {
     console.error('Erro ao gerar plano de treino:', error);
-    throw new Error('Não foi possível gerar o plano de treino.');
+    
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 429) {
+        throw new Error('Erro 429: Limite de requisições excedido.');
+      } else if (status === 401) {
+        throw new Error('Erro 401: API Key inválida.');
+      }
+    }
+    
+    throw new Error(`Não foi possível gerar o plano de treino. ${error.message || ''}`);
   }
 };
 
@@ -247,7 +273,14 @@ Forneça sugestões em JSON:
     
   } catch (error) {
     console.error('Erro ao gerar sugestões alimentares:', error);
-    throw new Error('Não foi possível gerar sugestões alimentares.');
+    
+    if (error.response?.status === 429) {
+      throw new Error('Erro 429: Limite de requisições excedido.');
+    } else if (error.response?.status === 401) {
+      throw new Error('Erro 401: API Key inválida.');
+    }
+    
+    throw new Error(`Não foi possível gerar sugestões alimentares. ${error.message || ''}`);
   }
 };
 

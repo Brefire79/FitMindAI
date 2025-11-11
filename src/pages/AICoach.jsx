@@ -39,7 +39,12 @@ const AICoach = () => {
 
   const analyzeProgress = async () => {
     if (!settings.openaiApiKey) {
-      alert('Por favor, configure sua API Key da OpenAI nas Configurações primeiro.');
+      alert('⚠️ Por favor, configure sua API Key da OpenAI nas Configurações primeiro.\n\nAcesse: Configurações > API Key OpenAI');
+      return;
+    }
+
+    if (!settings.openaiApiKey.startsWith('sk-')) {
+      alert('⚠️ API Key inválida. A chave deve começar com "sk-"\n\nVerifique sua chave em: https://platform.openai.com/api-keys');
       return;
     }
 
@@ -82,14 +87,25 @@ const AICoach = () => {
     const userMessage = { role: 'user', content: question };
     setChatHistory(prev => [...prev, userMessage]);
     setQuestion('');
-    setGenerating(true);
-
-    try {
-      const answer = await answerQuestion(question, user);
-      const aiMessage = { role: 'assistant', content: answer };
       setChatHistory(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Erro ao responder pergunta:', error);
+      
+      let errorMessage = 'Desculpe, não consegui processar sua pergunta.';
+      
+      if (error.message.includes('429')) {
+        errorMessage = '⚠️ Limite de requisições excedido. Aguarde alguns segundos e tente novamente.\n\nSe o problema persistir, verifique sua quota da OpenAI.';
+      } else if (error.message.includes('401')) {
+        errorMessage = '🔑 API Key inválida ou expirada. Por favor, verifique sua chave nas Configurações.';
+      } else if (error.message.includes('API Key')) {
+        errorMessage = '⚠️ Erro na API Key. Verifique se está configurada corretamente nas Configurações.';
+      }
+      
+      setChatHistory(prev => [...prev, { 
+        role: 'assistant', 
+        content: errorMessage
+      }]);
+    } finally {rror('Erro ao responder pergunta:', error);
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
         content: 'Desculpe, não consegui processar sua pergunta. Verifique sua API Key.' 
