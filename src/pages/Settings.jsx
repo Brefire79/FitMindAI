@@ -26,6 +26,21 @@ const Settings = () => {
     console.log('💾 handleSaveAISettings: Iniciando salvamento...');
     console.log('🔑 API Key para salvar:', geminiApiKey ? geminiApiKey.substring(0, 10) + '...' : 'vazio');
     
+    // Validar formato da API Key antes de salvar
+    if (geminiApiKey && !geminiApiKey.startsWith('AIza')) {
+      setMessage('❌ API Key inválida! Deve começar com "AIza"');
+      console.error('❌ API Key inválida:', geminiApiKey.substring(0, 4) + '...');
+      setTimeout(() => setMessage(''), 5000);
+      return;
+    }
+    
+    if (geminiApiKey && geminiApiKey.length < 30) {
+      setMessage('❌ API Key muito curta! Verifique se copiou a chave completa.');
+      console.error('❌ API Key muito curta. Tamanho:', geminiApiKey.length);
+      setTimeout(() => setMessage(''), 5000);
+      return;
+    }
+    
     setSaving(true);
     try {
       if (geminiApiKey) {
@@ -39,8 +54,8 @@ const Settings = () => {
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       console.error('❌ Erro no handleSaveAISettings:', error);
-      setMessage('✗ Erro ao salvar configurações');
-      console.error(error);
+      setMessage(`✗ Erro: ${error.message || 'Erro ao salvar configurações'}`);
+      setTimeout(() => setMessage(''), 5000);
     } finally {
       setSaving(false);
       console.log('🏁 handleSaveAISettings: Finalizado');
