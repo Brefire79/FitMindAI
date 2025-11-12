@@ -25,12 +25,26 @@ const Measurements = () => {
     weight: '',
     bodyFat: '',
     leanMass: '',
+    bodyWater: '',
+    boneMass: '',
+    visceralFat: '',
+    bmr: '',
+    metabolicAge: '',
+    neck: '',
     chest: '',
     waist: '',
+    abdomen: '',
     hip: '',
-    arm: '',
-    thigh: '',
-    calf: '',
+    rightArmRelaxed: '',
+    leftArmRelaxed: '',
+    rightArmContracted: '',
+    leftArmContracted: '',
+    rightForearm: '',
+    leftForearm: '',
+    rightThigh: '',
+    leftThigh: '',
+    rightCalf: '',
+    leftCalf: '',
     notes: ''
   });
 
@@ -71,12 +85,26 @@ const Measurements = () => {
       imc: parseFloat(imc),
       bodyFat: formData.bodyFat ? parseFloat(formData.bodyFat) : null,
       leanMass: formData.leanMass ? parseFloat(formData.leanMass) : null,
+      bodyWater: formData.bodyWater ? parseFloat(formData.bodyWater) : null,
+      boneMass: formData.boneMass ? parseFloat(formData.boneMass) : null,
+      visceralFat: formData.visceralFat ? parseFloat(formData.visceralFat) : null,
+      bmr: formData.bmr ? parseFloat(formData.bmr) : null,
+      metabolicAge: formData.metabolicAge ? parseInt(formData.metabolicAge) : null,
+      neck: formData.neck ? parseFloat(formData.neck) : null,
       chest: formData.chest ? parseFloat(formData.chest) : null,
       waist: formData.waist ? parseFloat(formData.waist) : null,
+      abdomen: formData.abdomen ? parseFloat(formData.abdomen) : null,
       hip: formData.hip ? parseFloat(formData.hip) : null,
-      arm: formData.arm ? parseFloat(formData.arm) : null,
-      thigh: formData.thigh ? parseFloat(formData.thigh) : null,
-      calf: formData.calf ? parseFloat(formData.calf) : null,
+      rightArmRelaxed: formData.rightArmRelaxed ? parseFloat(formData.rightArmRelaxed) : null,
+      leftArmRelaxed: formData.leftArmRelaxed ? parseFloat(formData.leftArmRelaxed) : null,
+      rightArmContracted: formData.rightArmContracted ? parseFloat(formData.rightArmContracted) : null,
+      leftArmContracted: formData.leftArmContracted ? parseFloat(formData.leftArmContracted) : null,
+      rightForearm: formData.rightForearm ? parseFloat(formData.rightForearm) : null,
+      leftForearm: formData.leftForearm ? parseFloat(formData.leftForearm) : null,
+      rightThigh: formData.rightThigh ? parseFloat(formData.rightThigh) : null,
+      leftThigh: formData.leftThigh ? parseFloat(formData.leftThigh) : null,
+      rightCalf: formData.rightCalf ? parseFloat(formData.rightCalf) : null,
+      leftCalf: formData.leftCalf ? parseFloat(formData.leftCalf) : null,
       notes: formData.notes,
       date: new Date().toISOString()
     };
@@ -108,12 +136,26 @@ const Measurements = () => {
       weight: '',
       bodyFat: '',
       leanMass: '',
+      bodyWater: '',
+      boneMass: '',
+      visceralFat: '',
+      bmr: '',
+      metabolicAge: '',
+      neck: '',
       chest: '',
       waist: '',
+      abdomen: '',
       hip: '',
-      arm: '',
-      thigh: '',
-      calf: '',
+      rightArmRelaxed: '',
+      leftArmRelaxed: '',
+      rightArmContracted: '',
+      leftArmContracted: '',
+      rightForearm: '',
+      leftForearm: '',
+      rightThigh: '',
+      leftThigh: '',
+      rightCalf: '',
+      leftCalf: '',
       notes: ''
     });
   };
@@ -249,49 +291,147 @@ const Measurements = () => {
                   )}
                 </div>
 
+                {/* Bioimpedância */}
+                {(measurement.bodyWater || measurement.boneMass || measurement.visceralFat || 
+                  measurement.bmr || measurement.metabolicAge) && (
+                  <div className="border-t border-primary/20 pt-4 mb-4">
+                    <p className="text-sm text-gray-400 mb-3 font-semibold">
+                      📊 Bioimpedância
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+                      {measurement.bodyWater && (
+                        <div className="bg-blue-500/10 rounded-lg p-2 text-center">
+                          <p className="text-gray-400 text-xs">Água Corporal</p>
+                          <p className="text-white font-semibold">{measurement.bodyWater}%</p>
+                        </div>
+                      )}
+                      {measurement.boneMass && (
+                        <div className="bg-gray-500/10 rounded-lg p-2 text-center">
+                          <p className="text-gray-400 text-xs">Massa Óssea</p>
+                          <p className="text-white font-semibold">{measurement.boneMass} kg</p>
+                        </div>
+                      )}
+                      {measurement.visceralFat && (
+                        <div className="bg-orange-500/10 rounded-lg p-2 text-center">
+                          <p className="text-gray-400 text-xs">Gordura Visceral</p>
+                          <p className="text-white font-semibold">{measurement.visceralFat}</p>
+                        </div>
+                      )}
+                      {measurement.bmr && (
+                        <div className="bg-purple-500/10 rounded-lg p-2 text-center">
+                          <p className="text-gray-400 text-xs">TMB</p>
+                          <p className="text-white font-semibold">{measurement.bmr} kcal</p>
+                        </div>
+                      )}
+                      {measurement.metabolicAge && (
+                        <div className="bg-green-500/10 rounded-lg p-2 text-center">
+                          <p className="text-gray-400 text-xs">Idade Metabólica</p>
+                          <p className="text-white font-semibold">{measurement.metabolicAge} anos</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Circunferências */}
-                {(measurement.chest || measurement.waist || measurement.hip || 
-                  measurement.arm || measurement.thigh || measurement.calf) && (
+                {(measurement.neck || measurement.chest || measurement.waist || measurement.abdomen || measurement.hip || 
+                  measurement.rightArmRelaxed || measurement.leftArmRelaxed || measurement.rightArmContracted || 
+                  measurement.leftArmContracted || measurement.rightForearm || measurement.leftForearm ||
+                  measurement.rightThigh || measurement.leftThigh || measurement.rightCalf || measurement.leftCalf) && (
                   <div className="border-t border-primary/20 pt-4">
-                    <p className="text-sm text-gray-400 mb-3 flex items-center">
+                    <p className="text-sm text-gray-400 mb-3 flex items-center font-semibold">
                       <Ruler className="w-4 h-4 mr-2" />
                       Circunferências (cm)
                     </p>
-                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      {measurement.neck && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Pescoço</p>
+                          <p className="text-white font-semibold">{measurement.neck}</p>
+                        </div>
+                      )}
                       {measurement.chest && (
-                        <div className="text-center">
-                          <p className="text-gray-400">Peito</p>
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Tórax/Peito</p>
                           <p className="text-white font-semibold">{measurement.chest}</p>
                         </div>
                       )}
                       {measurement.waist && (
-                        <div className="text-center">
-                          <p className="text-gray-400">Cintura</p>
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Cintura</p>
                           <p className="text-white font-semibold">{measurement.waist}</p>
                         </div>
                       )}
+                      {measurement.abdomen && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Abdômen</p>
+                          <p className="text-white font-semibold">{measurement.abdomen}</p>
+                        </div>
+                      )}
                       {measurement.hip && (
-                        <div className="text-center">
-                          <p className="text-gray-400">Quadril</p>
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Quadril</p>
                           <p className="text-white font-semibold">{measurement.hip}</p>
                         </div>
                       )}
-                      {measurement.arm && (
-                        <div className="text-center">
-                          <p className="text-gray-400">Braço</p>
-                          <p className="text-white font-semibold">{measurement.arm}</p>
+                      {measurement.rightArmRelaxed && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Braço D (relaxado)</p>
+                          <p className="text-white font-semibold">{measurement.rightArmRelaxed}</p>
                         </div>
                       )}
-                      {measurement.thigh && (
-                        <div className="text-center">
-                          <p className="text-gray-400">Coxa</p>
-                          <p className="text-white font-semibold">{measurement.thigh}</p>
+                      {measurement.leftArmRelaxed && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Braço E (relaxado)</p>
+                          <p className="text-white font-semibold">{measurement.leftArmRelaxed}</p>
                         </div>
                       )}
-                      {measurement.calf && (
-                        <div className="text-center">
-                          <p className="text-gray-400">Panturrilha</p>
-                          <p className="text-white font-semibold">{measurement.calf}</p>
+                      {measurement.rightArmContracted && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Braço D (contraído)</p>
+                          <p className="text-white font-semibold">{measurement.rightArmContracted}</p>
+                        </div>
+                      )}
+                      {measurement.leftArmContracted && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Braço E (contraído)</p>
+                          <p className="text-white font-semibold">{measurement.leftArmContracted}</p>
+                        </div>
+                      )}
+                      {measurement.rightForearm && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Antebraço D</p>
+                          <p className="text-white font-semibold">{measurement.rightForearm}</p>
+                        </div>
+                      )}
+                      {measurement.leftForearm && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Antebraço E</p>
+                          <p className="text-white font-semibold">{measurement.leftForearm}</p>
+                        </div>
+                      )}
+                      {measurement.rightThigh && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Coxa D</p>
+                          <p className="text-white font-semibold">{measurement.rightThigh}</p>
+                        </div>
+                      )}
+                      {measurement.leftThigh && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Coxa E</p>
+                          <p className="text-white font-semibold">{measurement.leftThigh}</p>
+                        </div>
+                      )}
+                      {measurement.rightCalf && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Panturrilha D</p>
+                          <p className="text-white font-semibold">{measurement.rightCalf}</p>
+                        </div>
+                      )}
+                      {measurement.leftCalf && (
+                        <div className="bg-background-dark/30 rounded p-2 text-center">
+                          <p className="text-gray-400 text-xs">Panturrilha E</p>
+                          <p className="text-white font-semibold">{measurement.leftCalf}</p>
                         </div>
                       )}
                     </div>
@@ -347,7 +487,7 @@ const Measurements = () => {
             <h3 className="text-lg font-display font-bold text-white mb-4">
               📊 Dados Essenciais
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="label">Peso (kg) *</label>
                 <input
@@ -388,83 +528,312 @@ const Measurements = () => {
             </div>
           </div>
 
+          {/* Bioimpedância */}
+          <div>
+            <h3 className="text-lg font-display font-bold text-white mb-4">
+              🔬 Bioimpedância
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div>
+                <label className="label">Água Corporal (%)</label>
+                <input
+                  type="number"
+                  name="bodyWater"
+                  value={formData.bodyWater}
+                  onChange={handleChange}
+                  step="0.1"
+                  className="input-field"
+                  placeholder="60.0"
+                />
+              </div>
+              <div>
+                <label className="label">Massa Óssea (kg)</label>
+                <input
+                  type="number"
+                  name="boneMass"
+                  value={formData.boneMass}
+                  onChange={handleChange}
+                  step="0.1"
+                  className="input-field"
+                  placeholder="3.5"
+                />
+              </div>
+              <div>
+                <label className="label">Gordura Visceral</label>
+                <input
+                  type="number"
+                  name="visceralFat"
+                  value={formData.visceralFat}
+                  onChange={handleChange}
+                  step="1"
+                  className="input-field"
+                  placeholder="8"
+                />
+              </div>
+              <div>
+                <label className="label">TMB (kcal)</label>
+                <input
+                  type="number"
+                  name="bmr"
+                  value={formData.bmr}
+                  onChange={handleChange}
+                  step="1"
+                  className="input-field"
+                  placeholder="1800"
+                />
+              </div>
+              <div>
+                <label className="label">Idade Metabólica</label>
+                <input
+                  type="number"
+                  name="metabolicAge"
+                  value={formData.metabolicAge}
+                  onChange={handleChange}
+                  step="1"
+                  className="input-field"
+                  placeholder="25"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Circunferências */}
           <div>
             <h3 className="text-lg font-display font-bold text-white mb-4">
               📏 Circunferências (cm)
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div>
-                <label className="label">Peito</label>
-                <input
-                  type="number"
-                  name="chest"
-                  value={formData.chest}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="input-field"
-                  placeholder="95"
-                />
+            
+            {/* Parte Superior */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-3">Parte Superior</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="label">Pescoço</label>
+                  <input
+                    type="number"
+                    name="neck"
+                    value={formData.neck}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="38"
+                  />
+                </div>
+                <div>
+                  <label className="label">Tórax/Peito</label>
+                  <input
+                    type="number"
+                    name="chest"
+                    value={formData.chest}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="95"
+                  />
+                </div>
+                <div>
+                  <label className="label">Cintura (linha do umbigo)</label>
+                  <input
+                    type="number"
+                    name="waist"
+                    value={formData.waist}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="80"
+                  />
+                </div>
+                <div>
+                  <label className="label">Abdômen (2 dedos acima)</label>
+                  <input
+                    type="number"
+                    name="abdomen"
+                    value={formData.abdomen}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="82"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="label">Cintura</label>
-                <input
-                  type="number"
-                  name="waist"
-                  value={formData.waist}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="input-field"
-                  placeholder="80"
-                />
+            </div>
+
+            {/* Quadril */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-3">Quadril</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Quadril (ponto mais largo)</label>
+                  <input
+                    type="number"
+                    name="hip"
+                    value={formData.hip}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="95"
+                  />
+                </div>
+                <div>
+                  <label className="label">Pescoço (abaixo do gogó)</label>
+                  <input
+                    type="number"
+                    name="neck"
+                    value={formData.neck}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="38"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="label">Quadril</label>
-                <input
-                  type="number"
-                  name="hip"
-                  value={formData.hip}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="input-field"
-                  placeholder="95"
-                />
+            </div>
+
+            {/* Braços */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-3">Braços</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="label">Braço D (relaxado)</label>
+                  <input
+                    type="number"
+                    name="rightArmRelaxed"
+                    value={formData.rightArmRelaxed}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="32"
+                  />
+                </div>
+                <div>
+                  <label className="label">Braço E (relaxado)</label>
+                  <input
+                    type="number"
+                    name="leftArmRelaxed"
+                    value={formData.leftArmRelaxed}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="32"
+                  />
+                </div>
+                <div>
+                  <label className="label">Braço D (contraído)</label>
+                  <input
+                    type="number"
+                    name="rightArmContracted"
+                    value={formData.rightArmContracted}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="35"
+                  />
+                </div>
+                <div>
+                  <label className="label">Braço E (contraído)</label>
+                  <input
+                    type="number"
+                    name="leftArmContracted"
+                    value={formData.leftArmContracted}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="35"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="label">Braço</label>
-                <input
-                  type="number"
-                  name="arm"
-                  value={formData.arm}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="input-field"
-                  placeholder="35"
-                />
+            </div>
+
+            {/* Antebraços */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-3">Antebraços</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Antebraço Direito</label>
+                  <input
+                    type="number"
+                    name="rightForearm"
+                    value={formData.rightForearm}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="28"
+                  />
+                </div>
+                <div>
+                  <label className="label">Antebraço Esquerdo</label>
+                  <input
+                    type="number"
+                    name="leftForearm"
+                    value={formData.leftForearm}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="28"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="label">Coxa</label>
-                <input
-                  type="number"
-                  name="thigh"
-                  value={formData.thigh}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="input-field"
-                  placeholder="55"
-                />
+            </div>
+
+            {/* Coxas */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-400 mb-3">Coxas (meio da coxa)</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Coxa Direita</label>
+                  <input
+                    type="number"
+                    name="rightThigh"
+                    value={formData.rightThigh}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="55"
+                  />
+                </div>
+                <div>
+                  <label className="label">Coxa Esquerda</label>
+                  <input
+                    type="number"
+                    name="leftThigh"
+                    value={formData.leftThigh}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="55"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="label">Panturrilha</label>
-                <input
-                  type="number"
-                  name="calf"
-                  value={formData.calf}
-                  onChange={handleChange}
-                  step="0.1"
-                  className="input-field"
-                  placeholder="38"
-                />
+            </div>
+
+            {/* Panturrilhas */}
+            <div>
+              <p className="text-sm text-gray-400 mb-3">Panturrilhas</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Panturrilha Direita</label>
+                  <input
+                    type="number"
+                    name="rightCalf"
+                    value={formData.rightCalf}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="38"
+                  />
+                </div>
+                <div>
+                  <label className="label">Panturrilha Esquerda</label>
+                  <input
+                    type="number"
+                    name="leftCalf"
+                    value={formData.leftCalf}
+                    onChange={handleChange}
+                    step="0.1"
+                    className="input-field"
+                    placeholder="38"
+                  />
+                </div>
               </div>
             </div>
           </div>
