@@ -29,16 +29,22 @@ export const SettingsProvider = ({ children }) => {
       const mergedSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
       setSettings(mergedSettings);
       
+      console.log('📊 Configurações carregadas:', mergedSettings);
+      
       // Inicializar Gemini se a chave estiver configurada
       if (mergedSettings.geminiApiKey) {
         try {
+          console.log('🔑 Inicializando Gemini com API Key...');
           initializeAI(mergedSettings.geminiApiKey);
+          console.log('✅ Gemini inicializado com sucesso!');
         } catch (error) {
-          console.error('Erro ao inicializar Gemini:', error);
+          console.error('❌ Erro ao inicializar Gemini:', error);
         }
+      } else {
+        console.log('⚠️ Nenhuma API Key do Gemini configurada');
       }
     } catch (error) {
-      console.error('Erro ao carregar configurações:', error);
+      console.error('❌ Erro ao carregar configurações:', error);
     } finally {
       setLoading(false);
     }
@@ -46,6 +52,7 @@ export const SettingsProvider = ({ children }) => {
 
   const updateSetting = async (key, value) => {
     try {
+      console.log(`💾 Salvando configuração: ${key} =`, value);
       await saveSetting(key, value);
       setSettings(prev => ({
         ...prev,
@@ -54,10 +61,12 @@ export const SettingsProvider = ({ children }) => {
       
       // Reinicializar Gemini quando a chave for atualizada
       if (key === 'geminiApiKey' && value) {
+        console.log('🔄 Reinicializando Gemini com nova API Key...');
         initializeAI(value);
+        console.log('✅ Gemini reinicializado com sucesso!');
       }
     } catch (error) {
-      console.error('Erro ao atualizar configuração:', error);
+      console.error('❌ Erro ao atualizar configuração:', error);
       throw error;
     }
   };

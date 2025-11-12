@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import { exportAllData, importAllData } from '../utils/database';
@@ -15,19 +15,35 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
+  // Sincronizar com as configurações carregadas do IndexedDB
+  useEffect(() => {
+    if (settings.geminiApiKey) {
+      setGeminiApiKey(settings.geminiApiKey);
+    }
+  }, [settings.geminiApiKey]);
+
   const handleSaveAISettings = async () => {
+    console.log('💾 handleSaveAISettings: Iniciando salvamento...');
+    console.log('🔑 API Key para salvar:', geminiApiKey ? geminiApiKey.substring(0, 10) + '...' : 'vazio');
+    
     setSaving(true);
     try {
       if (geminiApiKey) {
+        console.log('📤 Chamando updateSetting...');
         await updateSetting('geminiApiKey', geminiApiKey);
+        console.log('✅ updateSetting concluído!');
+      } else {
+        console.warn('⚠️ API Key vazia, não salvando');
       }
       setMessage('✓ Configurações de IA salvas com sucesso!');
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
+      console.error('❌ Erro no handleSaveAISettings:', error);
       setMessage('✗ Erro ao salvar configurações');
       console.error(error);
     } finally {
       setSaving(false);
+      console.log('🏁 handleSaveAISettings: Finalizado');
     }
   };
 
@@ -216,6 +232,11 @@ const Settings = () => {
               <div className="text-sm text-blue-200">
                 <p className="font-semibold mb-1">API Gratuita do Google Gemini</p>
                 <p>Configure sua chave de API do Gemini para usar todos os recursos de IA do FitMind gratuitamente.</p>
+                {settings.geminiApiKey && (
+                  <p className="mt-2 text-green-400 font-semibold">
+                    ✅ API Key configurada ({settings.geminiApiKey.substring(0, 10)}...)
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -3,13 +3,22 @@ import axios from 'axios';
 let GEMINI_API_KEY = null;
 
 export const initializeAI = (apiKey) => {
-  if (!apiKey) throw new Error('API Key do Gemini não configurada');
+  if (!apiKey) {
+    console.error('❌ initializeAI: API Key não fornecida');
+    throw new Error('API Key do Gemini não configurada');
+  }
   GEMINI_API_KEY = apiKey;
+  console.log('✅ initializeAI: Gemini API Key configurada com sucesso');
+  console.log('🔑 Primeiros caracteres da chave:', apiKey.substring(0, 10) + '...');
   return true;
 };
 
 export const getAIClient = () => {
-  if (!GEMINI_API_KEY) throw new Error('Gemini não foi inicializado. Configure sua API Key.');
+  if (!GEMINI_API_KEY) {
+    console.error('❌ getAIClient: Gemini não inicializado');
+    throw new Error('Gemini não foi inicializado. Configure sua API Key.');
+  }
+  console.log('✅ getAIClient: Retornando API Key');
   return GEMINI_API_KEY;
 };
 
