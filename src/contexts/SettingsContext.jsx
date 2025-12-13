@@ -19,10 +19,6 @@ export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
   const loadSettings = useCallback(async () => {
     try {
       const savedSettings = await getAllSettings();
@@ -43,6 +39,10 @@ export const SettingsProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const updateSetting = useCallback(async (key, value) => {
     try {

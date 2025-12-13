@@ -7,10 +7,6 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
   const loadUser = useCallback(async () => {
     try {
       const userData = await getUser();
@@ -21,6 +17,10 @@ export const UserProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
 
   const createUser = useCallback(async (userData) => {
     try {
