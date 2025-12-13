@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useUser } from '../contexts/UserContext';
 import { getMeasurements, getWorkouts } from '../utils/database';
@@ -53,47 +53,55 @@ const Dashboard = () => {
     return <LoadingSpinner message="Carregando seu progresso..." />;
   }
 
-  // Estatísticas rápidas
-  const latestMeasurement = measurements[0];
-  const previousMeasurement = measurements[1];
+  // Estatísticas rápidas - memoized
+  const latestMeasurement = useMemo(() => measurements[0], [measurements]);
+  const previousMeasurement = useMemo(() => measurements[1], [measurements]);
   
-  const weightChange = latestMeasurement && previousMeasurement 
-    ? (latestMeasurement.weight - previousMeasurement.weight).toFixed(1)
-    : 0;
+  const weightChange = useMemo(() => {
+    return latestMeasurement && previousMeasurement 
+      ? (latestMeasurement.weight - previousMeasurement.weight).toFixed(1)
+      : 0;
+  }, [latestMeasurement, previousMeasurement]);
   
-  const workoutsThisMonth = workouts.filter(w => {
-    const workoutDate = new Date(w.date);
-    const now = new Date();
-    return workoutDate.getMonth() === now.getMonth() && 
-           workoutDate.getFullYear() === now.getFullYear();
-  }).length;
+  const workoutsThisMonth = useMemo(() => {
+    return workouts.filter(w => {
+      const workoutDate = new Date(w.date);
+      const now = new Date();
+      return workoutDate.getMonth() === now.getMonth() && 
+             workoutDate.getFullYear() === now.getFullYear();
+    }).length;
+  }, [workouts]);
 
-  // Preparar dados para gráficos
-  const filterByPeriod = (data) => {
+  // Preparar dados para gráficos - memoized
+  const filterByPeriod = useCallback((data) => {
     const days = parseInt(chartPeriod);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
     return data.filter(item => new Date(item.date) >= cutoffDate);
-  };
+  }, [chartPeriod]);
 
-  const weightChartData = filterByPeriod(measurements)
-    .reverse()
-    .map(m => ({
-      date: format(new Date(m.date), 'dd/MM'),
-      peso: m.weight,
-      imc: m.imc
-    }));
+  const weightChartData = useMemo(() => {
+    return filterByPeriod(measurements)
+      .reverse()
+      .map(m => ({
+        date: format(new Date(m.date), 'dd/MM'),
+        peso: m.weight,
+        imc: m.imc
+      }));
+  }, [measurements, filterByPeriod]);
 
-  const bodyCompositionData = filterByPeriod(measurements)
-    .reverse()
-    .filter(m => m.bodyFat && m.leanMass)
-    .map(m => ({
-      date: format(new Date(m.date), 'dd/MM'),
-      gordura: m.bodyFat,
-      massaMagra: m.leanMass
-    }));
+  const bodyCompositionData = useMemo(() => {
+    return filterByPeriod(measurements)
+      .reverse()
+      .filter(m => m.bodyFat && m.leanMass)
+      .map(m => ({
+        date: format(new Date(m.date), 'dd/MM'),
+        gordura: m.bodyFat,
+        massaMagra: m.leanMass
+      }));
+  }, [measurements, filterByPeriod]);
 
-  const workoutFrequencyData = (() => {
+  const workoutFrequencyData = useMemo(() => {
     const workoutsByWeek = {};
     filterByPeriod(workouts).forEach(w => {
       const weekStart = new Date(w.date);
@@ -106,9 +114,9 @@ const Dashboard = () => {
       semana: week,
       treinos: count
     }));
-  })();
+  }, [workouts, filterByPeriod]);
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = useCallback(({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background-card border border-primary/30 rounded-lg p-3 shadow-glow">
@@ -125,7 +133,7 @@ const Dashboard = () => {
       );
     }
     return null;
-  };
+  }, []);
 
   return (
     <div className="main-container py-8 pb-24 md:pb-8">

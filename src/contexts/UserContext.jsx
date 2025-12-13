@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { getUser, saveUser, updateUser } from '../utils/database';
 
 const UserContext = createContext();
@@ -11,7 +11,7 @@ export const UserProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     try {
       const userData = await getUser();
       setUser(userData);
@@ -20,9 +20,9 @@ export const UserProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createUser = async (userData) => {
+  const createUser = useCallback(async (userData) => {
     try {
       const newUser = await saveUser(userData);
       setUser(newUser);
@@ -31,9 +31,9 @@ export const UserProvider = ({ children }) => {
       console.error('Erro ao criar usuário:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateUserData = async (updates) => {
+  const updateUserData = useCallback(async (updates) => {
     try {
       const updatedUser = await updateUser({ ...user, ...updates });
       setUser(updatedUser);
@@ -42,15 +42,16 @@ export const UserProvider = ({ children }) => {
       console.error('Erro ao atualizar usuário:', error);
       throw error;
     }
-  };
+  }, [user]);
 
-  const value = {
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     user,
     loading,
     createUser,
     updateUserData,
     refreshUser: loadUser
-  };
+  }), [user, loading, createUser, updateUserData, loadUser]);
 
   return (
     <UserContext.Provider value={value}>

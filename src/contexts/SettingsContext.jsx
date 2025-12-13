@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { saveSetting, getAllSettings } from '../utils/database';
 import { initializeAI } from '../services/aiService';
 
@@ -23,36 +23,29 @@ export const SettingsProvider = ({ children }) => {
     loadSettings();
   }, []);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const savedSettings = await getAllSettings();
       const mergedSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
       setSettings(mergedSettings);
       
-      console.log('📊 Configurações carregadas:', mergedSettings);
-      
       // Inicializar Gemini se a chave estiver configurada
       if (mergedSettings.geminiApiKey) {
         try {
-          console.log('🔑 Inicializando Gemini com API Key...');
           initializeAI(mergedSettings.geminiApiKey);
-          console.log('✅ Gemini inicializado com sucesso!');
         } catch (error) {
-          console.error('❌ Erro ao inicializar Gemini:', error);
+          console.error('Erro ao inicializar Gemini:', error);
         }
-      } else {
-        console.log('⚠️ Nenhuma API Key do Gemini configurada');
       }
     } catch (error) {
-      console.error('❌ Erro ao carregar configurações:', error);
+      console.error('Erro ao carregar configurações:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateSetting = async (key, value) => {
+  const updateSetting = useCallback(async (key, value) => {
     try {
-      console.log(`💾 Salvando configuração: ${key} =`, value);
       await saveSetting(key, value);
       setSettings(prev => ({
         ...prev,
@@ -61,17 +54,15 @@ export const SettingsProvider = ({ children }) => {
       
       // Reinicializar Gemini quando a chave for atualizada
       if (key === 'geminiApiKey' && value) {
-        console.log('🔄 Reinicializando Gemini com nova API Key...');
         initializeAI(value);
-        console.log('✅ Gemini reinicializado com sucesso!');
       }
     } catch (error) {
-      console.error('❌ Erro ao atualizar configuração:', error);
+      console.error('Erro ao atualizar configuração:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateUnits = async (unitType, value) => {
+  const updateUnits = useCallback(async (unitType, value) => {
     try {
       const newUnits = { ...settings.units, [unitType]: value };
       await saveSetting('units', newUnits);
@@ -83,20 +74,21 @@ export const SettingsProvider = ({ children }) => {
       console.error('Erro ao atualizar unidades:', error);
       throw error;
     }
-  };
+  }, [settings.units]);
 
-  const toggleTheme = async () => {
+  const toggleTheme = useCallback(async () => {
     const newTheme = settings.theme === 'dark' ? 'light' : 'dark';
     await updateSetting('theme', newTheme);
-  };
+  }, [settings.theme, updateSetting]);
 
-  const value = {
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     settings,
     loading,
     updateSetting,
     updateUnits,
     toggleTheme
-  };
+  }), [settings, loading, updateSetting, updateUnits, toggleTheme]);
 
   return (
     <SettingsContext.Provider value={value}>

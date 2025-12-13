@@ -3,63 +3,68 @@ import { openDB } from 'idb';
 const DB_NAME = 'FitMindDB';
 const DB_VERSION = 1;
 
+// Cache the database connection to avoid repeated initialization
+let dbPromise = null;
+
 export const initDB = async () => {
-  const db = await openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      // Store para usuário
-      if (!db.objectStoreNames.contains('user')) {
-        db.createObjectStore('user', { keyPath: 'id', autoIncrement: true });
-      }
+  if (!dbPromise) {
+    dbPromise = openDB(DB_NAME, DB_VERSION, {
+      upgrade(db) {
+        // Store para usuário
+        if (!db.objectStoreNames.contains('user')) {
+          db.createObjectStore('user', { keyPath: 'id', autoIncrement: true });
+        }
 
-      // Store para medições corporais
-      if (!db.objectStoreNames.contains('measurements')) {
-        const measurementStore = db.createObjectStore('measurements', {
-          keyPath: 'id',
-          autoIncrement: true,
-        });
-        measurementStore.createIndex('date', 'date');
-        measurementStore.createIndex('userId', 'userId');
-      }
+        // Store para medições corporais
+        if (!db.objectStoreNames.contains('measurements')) {
+          const measurementStore = db.createObjectStore('measurements', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
+          measurementStore.createIndex('date', 'date');
+          measurementStore.createIndex('userId', 'userId');
+        }
 
-      // Store para treinos
-      if (!db.objectStoreNames.contains('workouts')) {
-        const workoutStore = db.createObjectStore('workouts', {
-          keyPath: 'id',
-          autoIncrement: true,
-        });
-        workoutStore.createIndex('date', 'date');
-        workoutStore.createIndex('userId', 'userId');
-        workoutStore.createIndex('muscleGroup', 'muscleGroup');
-      }
+        // Store para treinos
+        if (!db.objectStoreNames.contains('workouts')) {
+          const workoutStore = db.createObjectStore('workouts', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
+          workoutStore.createIndex('date', 'date');
+          workoutStore.createIndex('userId', 'userId');
+          workoutStore.createIndex('muscleGroup', 'muscleGroup');
+        }
 
-      // Store para exercícios
-      if (!db.objectStoreNames.contains('exercises')) {
-        const exerciseStore = db.createObjectStore('exercises', {
-          keyPath: 'id',
-          autoIncrement: true,
-        });
-        exerciseStore.createIndex('workoutId', 'workoutId');
-        exerciseStore.createIndex('name', 'name');
-      }
+        // Store para exercícios
+        if (!db.objectStoreNames.contains('exercises')) {
+          const exerciseStore = db.createObjectStore('exercises', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
+          exerciseStore.createIndex('workoutId', 'workoutId');
+          exerciseStore.createIndex('name', 'name');
+        }
 
-      // Store para configurações
-      if (!db.objectStoreNames.contains('settings')) {
-        db.createObjectStore('settings', { keyPath: 'key' });
-      }
+        // Store para configurações
+        if (!db.objectStoreNames.contains('settings')) {
+          db.createObjectStore('settings', { keyPath: 'key' });
+        }
 
-      // Store para recomendações da IA
-      if (!db.objectStoreNames.contains('aiRecommendations')) {
-        const aiStore = db.createObjectStore('aiRecommendations', {
-          keyPath: 'id',
-          autoIncrement: true,
-        });
-        aiStore.createIndex('date', 'date');
-        aiStore.createIndex('userId', 'userId');
-      }
-    },
-  });
+        // Store para recomendações da IA
+        if (!db.objectStoreNames.contains('aiRecommendations')) {
+          const aiStore = db.createObjectStore('aiRecommendations', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
+          aiStore.createIndex('date', 'date');
+          aiStore.createIndex('userId', 'userId');
+        }
+      },
+    });
+  }
 
-  return db;
+  return dbPromise;
 };
 
 // ========== CRUD para Usuário ==========
@@ -177,6 +182,28 @@ export const getExercisesByWorkout = async (workoutId) => {
   return exercises;
 };
 
+// Batch load exercises for multiple workouts at once
+export const getExercisesForWorkouts = async (workoutIds) => {
+  if (!workoutIds || workoutIds.length === 0) return {};
+  
+  const db = await initDB();
+  const tx = db.transaction('exercises', 'readonly');
+  const index = tx.store.index('workoutId');
+  
+  const exercisesByWorkout = {};
+  
+  // Load all exercises in parallel
+  const promises = workoutIds.map(async (workoutId) => {
+    const exercises = await index.getAll(workoutId);
+    exercisesByWorkout[workoutId] = exercises;
+  });
+  
+  await Promise.all(promises);
+  await tx.done;
+  
+  return exercisesByWorkout;
+};
+
 export const deleteExercise = async (id) => {
   const db = await initDB();
   await db.delete('exercises', id);
@@ -252,18 +279,18 @@ export const importAllData = async (data) => {
     await tx.done;
   }
   
-  // Importar novos dados
+  // Importar novos dados - batch operations without awaiting each put
   for (const [storeName, items] of Object.entries(data)) {
-    if (storeName === 'exportDate') continue;
+    if (storeName === 'exportDate' || !Array.isArray(items)) continue;
     
     const tx = db.transaction(storeName, 'readwrite');
     const store = tx.store;
     
-    for (const item of items) {
-      await store.put(item);
-    }
+    // Put all items without awaiting each one
+    const promises = items.map(item => store.put(item));
     
-    await tx.done;
+    // Wait for transaction to complete
+    await Promise.all([...promises, tx.done]);
   }
   
   return true;
