@@ -111,9 +111,9 @@ const Measurements = () => {
 
     try {
       await saveMeasurement(measurementData);
+      await loadMeasurements();
       setShowModal(false);
       resetForm();
-      await loadMeasurements();
     } catch (error) {
       console.error('Erro ao salvar medição:', error);
       alert('Erro ao salvar medição');

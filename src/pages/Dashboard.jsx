@@ -21,7 +21,10 @@ const Dashboard = () => {
   const [chartPeriod, setChartPeriod] = useState('30'); // 7, 30, 90 dias
 
   const loadData = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     try {
       const [measurementsData, workoutsData] = await Promise.all([
