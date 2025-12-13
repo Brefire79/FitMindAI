@@ -41,3 +41,7 @@ Thumbs.db
 # PWA
 sw.js
 workbox-*.js
+
+# Temporary files
+temp_*.js
+temp_*.jsx

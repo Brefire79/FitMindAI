@@ -21,6 +21,11 @@ const Dashboard = () => {
   const [chartPeriod, setChartPeriod] = useState('30'); // 7, 30, 90 dias
 
   const loadData = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
     try {
       const [measurementsData, workoutsData] = await Promise.all([
         getMeasurements(user.id),
@@ -36,10 +41,35 @@ const Dashboard = () => {
   }, [user]);
 
   useEffect(() => {
-    if (user) {
-      loadData();
+    loadData();
+  }, [loadData]);
+
+  // Preparar dados para gráficos - memoized
+  const filterByPeriod = useCallback((data) => {
+    const days = parseInt(chartPeriod);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    return data.filter(item => new Date(item.date) >= cutoffDate);
+  }, [chartPeriod]);
+
+  const CustomTooltip = useCallback(({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background-card border border-primary/30 rounded-lg p-3 shadow-glow">
+          <p className="text-white font-semibold mb-2">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {entry.name}: {entry.value}
+              {entry.name === 'peso' && ' kg'}
+              {entry.name === 'gordura' && '%'}
+              {entry.name === 'massaMagra' && ' kg'}
+            </p>
+          ))}
+        </div>
+      );
     }
-  }, [user, loadData]);
+    return null;
+  }, []);
 
   if (!user) {
     return (
@@ -53,7 +83,7 @@ const Dashboard = () => {
     return <LoadingSpinner message="Carregando seu progresso..." />;
   }
 
-  // Estatísticas rápidas
+  // Estatísticas rápidas - computed after early returns
   const latestMeasurement = measurements[0];
   const previousMeasurement = measurements[1];
   
@@ -67,14 +97,6 @@ const Dashboard = () => {
     return workoutDate.getMonth() === now.getMonth() && 
            workoutDate.getFullYear() === now.getFullYear();
   }).length;
-
-  // Preparar dados para gráficos
-  const filterByPeriod = (data) => {
-    const days = parseInt(chartPeriod);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
-    return data.filter(item => new Date(item.date) >= cutoffDate);
-  };
 
   const weightChartData = filterByPeriod(measurements)
     .reverse()
@@ -107,25 +129,6 @@ const Dashboard = () => {
       treinos: count
     }));
   })();
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-background-card border border-primary/30 rounded-lg p-3 shadow-glow">
-          <p className="text-white font-semibold mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} style={{ color: entry.color }} className="text-sm">
-              {entry.name}: {entry.value}
-              {entry.name === 'peso' && ' kg'}
-              {entry.name === 'gordura' && '%'}
-              {entry.name === 'massaMagra' && ' kg'}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="main-container py-8 pb-24 md:pb-8">

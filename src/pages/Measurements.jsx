@@ -65,15 +65,15 @@ const Measurements = () => {
     }
   }, [user, loadMeasurements]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     const weight = parseFloat(formData.weight);
@@ -118,9 +118,9 @@ const Measurements = () => {
       console.error('Erro ao salvar medição:', error);
       alert('Erro ao salvar medição');
     }
-  };
+  }, [formData, user, loadMeasurements, resetForm]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (window.confirm('Deseja realmente excluir esta medição?')) {
       try {
         await deleteMeasurement(id);
@@ -129,9 +129,9 @@ const Measurements = () => {
         console.error('Erro ao deletar medição:', error);
       }
     }
-  };
+  }, [loadMeasurements]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       weight: '',
       bodyFat: '',
@@ -158,7 +158,7 @@ const Measurements = () => {
       leftCalf: '',
       notes: ''
     });
-  };
+  }, []);
 
   if (!user) {
     return (

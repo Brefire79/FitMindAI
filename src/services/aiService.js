@@ -4,77 +4,54 @@ let GEMINI_API_KEY = null;
 
 export const initializeAI = (apiKey) => {
   if (!apiKey) {
-    console.error('❌ initializeAI: API Key não fornecida');
     throw new Error('API Key do Gemini não configurada');
   }
   
   // Validar formato básico da API Key do Gemini
   if (!apiKey.startsWith('AIza')) {
-    console.error('❌ initializeAI: API Key não parece ser válida (deve começar com "AIza")');
-    console.log('🔑 API Key fornecida começa com:', apiKey.substring(0, 4));
     throw new Error('API Key do Gemini inválida. Deve começar com "AIza". Gere uma nova em: https://makersuite.google.com/app/apikey');
   }
   
   if (apiKey.length < 30) {
-    console.error('❌ initializeAI: API Key muito curta (tamanho:', apiKey.length, ')');
     throw new Error('API Key do Gemini inválida. Verifique se copiou a chave completa.');
   }
   
   GEMINI_API_KEY = apiKey;
-  console.log('✅ initializeAI: Gemini API Key configurada com sucesso');
-  console.log('🔑 Primeiros caracteres da chave:', apiKey.substring(0, 10) + '...');
-  console.log('📏 Tamanho da chave:', apiKey.length, 'caracteres');
   return true;
 };
 
 export const getAIClient = () => {
   if (!GEMINI_API_KEY) {
-    console.error('❌ getAIClient: Gemini não inicializado');
     throw new Error('Gemini não foi inicializado. Configure sua API Key.');
   }
-  console.log('✅ getAIClient: Retornando API Key');
   return GEMINI_API_KEY;
 };
 
 const callGemini = async (prompt, apiKey, temperature, maxTokens) => {
   try {
-    console.log('🔄 callGemini: Iniciando chamada à API do Gemini');
-    console.log('🔑 API Key (primeiros 15 chars):', apiKey.substring(0, 15) + '...');
-    console.log('📝 Tamanho do prompt:', prompt.length, 'caracteres');
-    
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     const payload = { 
       contents: [{ parts: [{ text: prompt }] }], 
       generationConfig: { temperature, maxOutputTokens: maxTokens } 
     };
     
-    console.log('🌐 URL da requisição:', url.replace(apiKey, 'API_KEY_HIDDEN'));
-    
     const res = await axios.post(url, payload, { 
       headers: { 'Content-Type': 'application/json' } 
     });
     
-    console.log('✅ callGemini: Resposta recebida com sucesso');
     const text = res.data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-    console.log('📄 Tamanho da resposta:', text.length, 'caracteres');
     
     return text;
   } catch (error) {
-    console.error('❌ callGemini: Erro detalhado');
-    console.error('Status:', error.response?.status);
-    console.error('Status Text:', error.response?.statusText);
-    console.error('Data:', error.response?.data);
-    console.error('Message:', error.message);
-    
     if (error.response?.status === 404) {
-      throw new Error('❌ API Key inválida ou API do Gemini não habilitada. Verifique:\n' +
+      throw new Error('API Key inválida ou API do Gemini não habilitada. Verifique:\n' +
         '1. API Key está correta?\n' +
         '2. API do Gemini está ativada no Google Cloud Console?\n' +
         '3. Gere uma nova chave em: https://makersuite.google.com/app/apikey');
     } else if (error.response?.status === 403) {
-      throw new Error('❌ Permissão negada. Verifique se a API Key tem permissões para usar o Gemini.');
+      throw new Error('Permissão negada. Verifique se a API Key tem permissões para usar o Gemini.');
     } else if (error.response?.status === 429) {
-      throw new Error('❌ Limite de requisições excedido. Aguarde alguns minutos e tente novamente.');
+      throw new Error('Limite de requisições excedido. Aguarde alguns minutos e tente novamente.');
     }
     
     throw new Error(`Erro ao chamar API do Gemini: ${error.message}`);

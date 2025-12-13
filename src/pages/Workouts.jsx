@@ -6,7 +6,7 @@ import {
   getWorkouts,
   deleteWorkout,
   saveExercise,
-  getExercisesByWorkout
+  getExercisesForWorkouts
 } from '../utils/database';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
@@ -47,12 +47,9 @@ const Workouts = () => {
       const data = await getWorkouts(user.id);
       setWorkouts(data);
       
-      // Carregar exercícios para cada treino
-      const exercisesData = {};
-      for (const workout of data) {
-        const workoutExercises = await getExercisesByWorkout(workout.id);
-        exercisesData[workout.id] = workoutExercises;
-      }
+      // Batch load exercises for all workouts at once (fixes N+1 query problem)
+      const workoutIds = data.map(w => w.id);
+      const exercisesData = await getExercisesForWorkouts(workoutIds);
       setExercises(exercisesData);
     } catch (error) {
       console.error('Erro ao carregar treinos:', error);
