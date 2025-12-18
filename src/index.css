@@ -42,19 +42,19 @@
   .btn-primary {
     @apply bg-gradient-primary text-white font-semibold py-3 px-6 rounded-lg
            shadow-glow hover:shadow-glow-lg transition-all duration-300
-           hover:scale-105 active:scale-95;
+           hover:scale-105 active:scale-95 min-h-[44px] touch-manipulation;
   }
 
   .btn-accent {
     @apply bg-gradient-accent text-background-darker font-semibold py-3 px-6 rounded-lg
            shadow-glow-accent hover:shadow-glow-accent transition-all duration-300
-           hover:scale-105 active:scale-95;
+           hover:scale-105 active:scale-95 min-h-[44px] touch-manipulation;
   }
 
   .btn-secondary {
     @apply bg-background-card text-white font-semibold py-3 px-6 rounded-lg
            border-2 border-primary/30 hover:border-primary transition-all duration-300
-           hover:shadow-glow;
+           hover:shadow-glow min-h-[44px] touch-manipulation;
   }
 
   /* Cards */
@@ -71,10 +71,10 @@
   /* Inputs */
   .input-field {
     @apply bg-background-card/50 text-white border-2 border-primary/30
-           rounded-lg px-4 py-3 w-full font-body
+           rounded-lg px-4 py-3 w-full font-body min-h-[44px]
            focus:outline-none focus:border-primary focus:shadow-glow
-           transition-all duration-300
-           placeholder:text-gray-400;
+           transition-all duration-300 touch-manipulation
+           placeholder:text-gray-400 text-base;
   }
 
   .select-field {
@@ -94,12 +94,12 @@
 
   /* Container Principal */
   .main-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8;
   }
 
   /* Grid Responsivo */
   .grid-auto {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
   }
 
   /* Animação de Loading */
@@ -161,7 +161,7 @@
   }
 }
 
-/* Animações Personalizadas */
+/* Animações Personalizadas - Simplificadas */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -173,57 +173,18 @@
   }
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .animate-fadeInUp {
-  animation: fadeInUp 0.5s ease-out;
+  animation: fadeInUp 0.4s ease-out;
 }
 
-.animate-slideInRight {
-  animation: slideInRight 0.5s ease-out;
-}
-
-/* Efeito de Neon nos Cards ao Hover */
+/* Efeito de Neon nos Cards - Otimizado */
 .neon-border {
   position: relative;
-  overflow: hidden;
+  transition: border-color 0.3s ease;
 }
 
-.neon-border::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #0A84FF, #FFD60A, #0A84FF);
-  border-radius: inherit;
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-  animation: neonRotate 3s linear infinite;
-}
-
-.neon-border:hover::before {
-  opacity: 0.6;
-}
-
-@keyframes neonRotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.neon-border:hover {
+  border-color: rgba(10, 132, 255, 0.6);
 }
 
 /* Modo Claro - Estilo Apple */

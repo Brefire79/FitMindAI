@@ -53,23 +53,34 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     minify: 'terser',
+    target: 'es2015',
     terserOptions: {
       compress: {
         drop_console: true,
-        drop_debugger: true
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug']
+      },
+      format: {
+        comments: false
       }
     },
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'react-core': ['react', 'react-dom'],
+          'react-router': ['react-router-dom'],
           'charts': ['recharts'],
           'animations': ['framer-motion'],
           'utilities': ['axios', 'date-fns', 'idb']
-        }
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 600,
+    cssCodeSplit: true,
+    assetsInlineLimit: 4096
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'axios']

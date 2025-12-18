@@ -35,10 +35,8 @@ export const SettingsProvider = ({ children }) => {
       const savedSettings = await getAllSettings();
       const mergedSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
       setSettings(mergedSettings);
-      
-      console.log('📊 Configurações carregadas:', mergedSettings);
     } catch (error) {
-      console.error('❌ Erro ao carregar configurações:', error);
+      console.error('Erro ao carregar configurações:', error);
     } finally {
       setLoading(false);
     }
@@ -46,14 +44,13 @@ export const SettingsProvider = ({ children }) => {
 
   const updateSetting = async (key, value) => {
     try {
-      console.log(`💾 Salvando configuração: ${key} =`, value);
       await saveSetting(key, value);
       setSettings(prev => ({
         ...prev,
         [key]: value
       }));
     } catch (error) {
-      console.error('❌ Erro ao atualizar configuração:', error);
+      console.error('Erro ao atualizar configuração:', error);
       throw error;
     }
   };
