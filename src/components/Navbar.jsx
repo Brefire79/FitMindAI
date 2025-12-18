@@ -24,7 +24,10 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-gradient-card dark:bg-gradient-card border-b border-primary/20 dark:border-primary/20 backdrop-blur-custom sticky top-0 z-50 transition-colors duration-300">
+    <nav
+      className="bg-gradient-card dark:bg-gradient-card border-b border-primary/20 dark:border-primary/20 backdrop-blur-custom sticky top-0 z-50 transition-colors duration-300"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}
+    >
       <div className="main-container">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
