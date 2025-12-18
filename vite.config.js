@@ -7,7 +7,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['vite.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: [
+        'vite.svg', 
+        'pwa-72x72.png',
+        'pwa-96x96.png',
+        'pwa-144x144.png',
+        'pwa-152x152.png',
+        'pwa-192x192.png',
+        'pwa-384x384.png',
+        'pwa-512x512.png'
+      ],
       manifest: false, // Usar manifest.webmanifest estático
       devOptions: {
         enabled: false
