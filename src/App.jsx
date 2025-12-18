@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { UserProvider } from './contexts/UserContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import Navbar from './components/Navbar';
+import UpdateNotification from './components/UpdateNotification';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
@@ -15,9 +16,9 @@ function App() {
     <Router>
       <SettingsProvider>
         <UserProvider>
-          <div className="min-h-screen bg-gradient-dark">
+          <div className="min-h-screen bg-gradient-dark dark:bg-gradient-dark transition-colors duration-300">
             <Navbar />
-            <main className="pb-20 md:pb-0">
+            <main className="pb-20 md:pb-0 transition-colors duration-300">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>
+            <UpdateNotification />
           </div>
         </UserProvider>
       </SettingsProvider>

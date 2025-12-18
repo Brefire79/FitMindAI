@@ -4,7 +4,7 @@
 
 @layer base {
   * {
-    @apply border-gray-800;
+    @apply border-gray-800 transition-colors duration-300;
   }
   
   body {
@@ -13,8 +13,22 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  html:not(.dark) body {
+    @apply bg-white text-gray-900;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  }
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display text-white;
+  }
+
+  html:not(.dark) h1,
+  html:not(.dark) h2,
+  html:not(.dark) h3,
+  html:not(.dark) h4,
+  html:not(.dark) h5,
+  html:not(.dark) h6 {
+    @apply text-gray-900;
   }
 }
 
@@ -210,4 +224,117 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Modo Claro - Estilo Apple */
+html:not(.dark) {
+  color-scheme: light;
+}
+
+html:not(.dark) body {
+  @apply bg-white text-gray-900;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+html:not(.dark) .card,
+html:not(.dark) .card-glow {
+  @apply bg-white border border-gray-100 text-gray-900 shadow-sm hover:shadow-md;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+html:not(.dark) .card:hover,
+html:not(.dark) .card-glow:hover {
+  @apply border-gray-200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+html:not(.dark) .input-field {
+  @apply bg-gray-50 text-gray-900 border border-gray-300 placeholder:text-gray-400;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) .input-field:focus {
+  @apply border-blue-500 ring-2 ring-blue-200 outline-none;
+}
+
+html:not(.dark) .select-field {
+  @apply bg-gray-50 text-gray-900 border border-gray-300;
+}
+
+html:not(.dark) .label {
+  @apply text-gray-700 font-semibold text-sm;
+}
+
+html:not(.dark) .main-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+}
+
+html:not(.dark) .heading-glow {
+  @apply font-display text-transparent bg-clip-text;
+  background-image: linear-gradient(135deg, #0A84FF 0%, #5AB4FF 100%);
+}
+
+html:not(.dark) .btn-primary {
+  @apply bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg;
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+html:not(.dark) .btn-primary:hover {
+  @apply bg-blue-600;
+  box-shadow: 0 6px 20px rgba(10, 132, 255, 0.4);
+}
+
+html:not(.dark) .btn-secondary {
+  @apply bg-gray-100 text-gray-900 font-semibold py-3 px-6 rounded-lg border-2 border-gray-300;
+}
+
+html:not(.dark) .btn-secondary:hover {
+  @apply bg-gray-200 border-gray-400;
+}
+
+html:not(.dark) .badge-success {
+  @apply bg-green-50 text-green-700 border border-green-200;
+}
+
+html:not(.dark) .badge-warning {
+  @apply bg-yellow-50 text-yellow-700 border border-yellow-200;
+}
+
+html:not(.dark) .badge-info {
+  @apply bg-blue-50 text-blue-700 border border-blue-200;
+}
+
+html:not(.dark) p {
+  @apply text-gray-700;
+}
+
+html:not(.dark) .text-gray-300 {
+  @apply text-gray-600;
+}
+
+html:not(.dark) .text-gray-400 {
+  @apply text-gray-500;
+}
+
+html:not(.dark) .bg-background-card {
+  @apply bg-gray-100;
+}
+
+html:not(.dark) .neon-border {
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+html:not(.dark) .neon-border:hover {
+  border: 2px solid #0A84FF;
+  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.15);
+}
+
+html:not(.dark) .neon-border::before {
+  display: none;
+}
+
+html.dark {
+  color-scheme: dark;
 }

@@ -1,11 +1,13 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'FitMindDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incrementado para suportar migrações
 
 export const initDB = async () => {
   const db = await openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
+    upgrade(db, oldVersion, newVersion, transaction) {
+      console.log(`📊 Migrando banco de dados da versão ${oldVersion} para ${newVersion}`);
+      
       // Store para usuário
       if (!db.objectStoreNames.contains('user')) {
         db.createObjectStore('user', { keyPath: 'id', autoIncrement: true });
@@ -56,6 +58,19 @@ export const initDB = async () => {
         aiStore.createIndex('date', 'date');
         aiStore.createIndex('userId', 'userId');
       }
+
+      // Store para backup/metadata (versão 2)
+      if (!db.objectStoreNames.contains('metadata')) {
+        const metadataStore = db.createObjectStore('metadata', { keyPath: 'key' });
+      }
+
+      console.log('✅ Banco de dados migrado com sucesso!');
+    },
+    blocked() {
+      console.warn('⚠️ Atualização do banco bloqueada. Feche outras abas do app.');
+    },
+    blocking() {
+      console.warn('⚠️ Esta aba está bloqueando a atualização do banco.');
     },
   });
 

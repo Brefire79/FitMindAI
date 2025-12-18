@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { saveSetting, getAllSettings } from '../utils/database';
-import { initializeAI } from '../services/aiService';
 
 const SettingsContext = createContext();
 
@@ -11,8 +10,7 @@ const DEFAULT_SETTINGS = {
     distance: 'km',
     height: 'cm'
   },
-  notifications: true,
-  geminiApiKey: ''
+  notifications: true
 };
 
 export const SettingsProvider = ({ children }) => {
@@ -23,6 +21,15 @@ export const SettingsProvider = ({ children }) => {
     loadSettings();
   }, []);
 
+  // Aplicar tema ao HTML quando settings mudar
+  useEffect(() => {
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings.theme]);
+
   const loadSettings = async () => {
     try {
       const savedSettings = await getAllSettings();
@@ -30,19 +37,6 @@ export const SettingsProvider = ({ children }) => {
       setSettings(mergedSettings);
       
       console.log('📊 Configurações carregadas:', mergedSettings);
-      
-      // Inicializar Gemini se a chave estiver configurada
-      if (mergedSettings.geminiApiKey) {
-        try {
-          console.log('🔑 Inicializando Gemini com API Key...');
-          initializeAI(mergedSettings.geminiApiKey);
-          console.log('✅ Gemini inicializado com sucesso!');
-        } catch (error) {
-          console.error('❌ Erro ao inicializar Gemini:', error);
-        }
-      } else {
-        console.log('⚠️ Nenhuma API Key do Gemini configurada');
-      }
     } catch (error) {
       console.error('❌ Erro ao carregar configurações:', error);
     } finally {
@@ -58,13 +52,6 @@ export const SettingsProvider = ({ children }) => {
         ...prev,
         [key]: value
       }));
-      
-      // Reinicializar Gemini quando a chave for atualizada
-      if (key === 'geminiApiKey' && value) {
-        console.log('🔄 Reinicializando Gemini com nova API Key...');
-        initializeAI(value);
-        console.log('✅ Gemini reinicializado com sucesso!');
-      }
     } catch (error) {
       console.error('❌ Erro ao atualizar configuração:', error);
       throw error;

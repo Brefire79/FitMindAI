@@ -1,66 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSettings } from '../contexts/SettingsContext';
 import { exportAllData, importAllData } from '../utils/database';
 import { 
-  Settings as SettingsIcon, Key, Download, Upload, 
-  Moon, Sun, Scale, AlertCircle, Save, FileJson
+  Settings as SettingsIcon, Download, Upload, 
+  Moon, Sun, Scale, FileJson
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 const Settings = () => {
   const { settings, updateSetting, updateUnits, toggleTheme } = useSettings();
-  const [geminiApiKey, setGeminiApiKey] = useState(settings.geminiApiKey || '');
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-
-  // Sincronizar com as configurações carregadas do IndexedDB
-  useEffect(() => {
-    if (settings.geminiApiKey) {
-      setGeminiApiKey(settings.geminiApiKey);
-    }
-  }, [settings.geminiApiKey]);
-
-  const handleSaveAISettings = async () => {
-    console.log('💾 handleSaveAISettings: Iniciando salvamento...');
-    console.log('🔑 API Key para salvar:', geminiApiKey ? geminiApiKey.substring(0, 10) + '...' : 'vazio');
-    
-    // Validar formato da API Key antes de salvar
-    if (geminiApiKey && !geminiApiKey.startsWith('AIza')) {
-      setMessage('❌ API Key inválida! Deve começar com "AIza"');
-      console.error('❌ API Key inválida:', geminiApiKey.substring(0, 4) + '...');
-      setTimeout(() => setMessage(''), 5000);
-      return;
-    }
-    
-    if (geminiApiKey && geminiApiKey.length < 30) {
-      setMessage('❌ API Key muito curta! Verifique se copiou a chave completa.');
-      console.error('❌ API Key muito curta. Tamanho:', geminiApiKey.length);
-      setTimeout(() => setMessage(''), 5000);
-      return;
-    }
-    
-    setSaving(true);
-    try {
-      if (geminiApiKey) {
-        console.log('📤 Chamando updateSetting...');
-        await updateSetting('geminiApiKey', geminiApiKey);
-        console.log('✅ updateSetting concluído!');
-      } else {
-        console.warn('⚠️ API Key vazia, não salvando');
-      }
-      setMessage('✓ Configurações de IA salvas com sucesso!');
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
-      console.error('❌ Erro no handleSaveAISettings:', error);
-      setMessage(`✗ Erro: ${error.message || 'Erro ao salvar configurações'}`);
-      setTimeout(() => setMessage(''), 5000);
-    } finally {
-      setSaving(false);
-      console.log('🏁 handleSaveAISettings: Finalizado');
-    }
-  };
+  
 
   const handleExportJSON = async () => {
     try {
@@ -205,12 +157,12 @@ const Settings = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-2">
-            <SettingsIcon className="w-10 h-10 text-primary" />
+            <SettingsIcon className="w-10 h-10 text-primary dark:text-primary" />
             <h1 className="text-4xl font-display font-bold">
-              <span className="text-gradient-primary">Configurações</span>
+              <span className="text-gradient-primary dark:text-gradient-primary">Configurações</span>
             </h1>
           </div>
-          <p className="text-gray-400 font-body">
+          <p className="text-gray-400 dark:text-gray-400 font-body">
             Personalize sua experiência no FitMind AI
           </p>
         </div>
@@ -221,10 +173,10 @@ const Settings = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`
-              mb-6 p-4 rounded-lg border
+              mb-6 p-4 rounded-lg border transition-colors duration-300
               ${message.startsWith('✓') 
-                ? 'bg-green-500/10 border-green-500/50 text-green-400' 
-                : 'bg-red-500/10 border-red-500/50 text-red-400'
+                ? 'bg-green-500/10 border-green-500/50 text-green-400 dark:bg-green-500/10 dark:border-green-500/50 dark:text-green-400' 
+                : 'bg-red-500/10 border-red-500/50 text-red-400 dark:bg-red-500/10 dark:border-red-500/50 dark:text-red-400'
               }
             `}
           >
@@ -232,87 +184,37 @@ const Settings = () => {
           </motion.div>
         )}
 
-        {/* AI Configuration */}
+        {/* IA Offline */}
         <div className="card mb-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <Key className="w-6 h-6 text-accent" />
-            <h2 className="text-2xl font-display font-bold text-white">
-              Configuração de IA
-            </h2>
+          <div className="flex items-center space-x-3 mb-2">
+            <SettingsIcon className="w-6 h-6 text-accent dark:text-accent" />
+            <h2 className="text-2xl font-display font-bold text-white dark:text-white">IA Offline</h2>
           </div>
-          
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-4">
-            <div className="flex items-start space-x-2">
-              <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-200">
-                <p className="font-semibold mb-1">API Gratuita do Google Gemini</p>
-                <p>Configure sua chave de API do Gemini para usar todos os recursos de IA do FitMind gratuitamente.</p>
-                {settings.geminiApiKey && (
-                  <p className="mt-2 text-green-400 font-semibold">
-                    ✅ API Key configurada ({settings.geminiApiKey.substring(0, 10)}...)
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {/* Gemini API Key */}
-            <div>
-              <label className="label">Gemini API Key</label>
-              <input
-                type="password"
-                value={geminiApiKey}
-                onChange={(e) => setGeminiApiKey(e.target.value)}
-                placeholder="AIza..."
-                className="input-field font-mono"
-              />
-              <p className="text-xs text-gray-500 mt-2">
-                <a 
-                  href="https://makersuite.google.com/app/apikey" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-accent hover:underline"
-                >
-                  Obtenha sua chave Gemini gratuita aqui →
-                </a>
-              </p>
-            </div>
-
-            <p className="text-xs text-gray-500">
-              🔒 Sua chave é armazenada localmente e nunca é enviada para nossos servidores
-            </p>
-
-            <motion.button
-              onClick={handleSaveAISettings}
-              disabled={saving || !geminiApiKey}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-primary flex items-center space-x-2"
-            >
-              <Save className="w-5 h-5" />
-              <span>{saving ? 'Salvando...' : 'Salvar API Key'}</span>
-            </motion.button>
-          </div>
+          <p className="text-gray-300 dark:text-gray-300">
+            O FitMind agora utiliza um chatbot 100% offline baseado em regras e
+            cálculos locais (IMC, BMR, TDEE, tendências) para analisar suas
+            medições, bioimpedância e treinos. Nenhuma API ou chave externa é
+            necessária.
+          </p>
         </div>
 
         {/* Aparência */}
         <div className="card mb-6">
           <div className="flex items-center space-x-3 mb-4">
             {settings.theme === 'dark' ? (
-              <Moon className="w-6 h-6 text-primary" />
+              <Moon className="w-6 h-6 text-primary dark:text-primary" />
             ) : (
-              <Sun className="w-6 h-6 text-accent" />
+              <Sun className="w-6 h-6 text-accent dark:text-accent" />
             )}
-            <h2 className="text-2xl font-display font-bold text-white">
+            <h2 className="text-2xl font-display font-bold text-white dark:text-white">
               Aparência
             </h2>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white font-semibold">Tema</p>
-              <p className="text-sm text-gray-400">
+              <p className="text-white dark:text-white font-semibold">Tema</p>
+              <p className="text-sm text-gray-400 dark:text-gray-400">
                 {settings.theme === 'dark' ? 'Modo Escuro' : 'Modo Claro'}
               </p>
             </div>
@@ -320,7 +222,7 @@ const Settings = () => {
               onClick={toggleTheme}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="btn-secondary"
+              className="btn-secondary dark:btn-secondary transition-colors duration-300"
             >
               Alternar
             </motion.button>

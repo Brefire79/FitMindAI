@@ -37,11 +37,6 @@ const AICoach = () => {
   }, [user, loadRecommendations]);
 
   const analyzeProgress = async () => {
-    if (!settings.geminiApiKey) {
-      alert('⚠️ Por favor, configure sua API Key do Gemini nas Configurações primeiro.\n\nAcesse: Configurações > API Key Gemini\n\nA API do Gemini é gratuita! 🎉');
-      return;
-    }
-
     setLoading(true);
     try {
       const [measurements, workouts] = await Promise.all([
@@ -63,7 +58,7 @@ const AICoach = () => {
       await loadRecommendations();
     } catch (error) {
       console.error('Erro ao analisar progresso:', error);
-      alert(error.message || 'Erro ao gerar análise. Verifique sua API Key.');
+      alert(error.message || 'Erro ao gerar análise offline.');
     } finally {
       setLoading(false);
     }
@@ -73,18 +68,17 @@ const AICoach = () => {
     e.preventDefault();
     if (!question.trim()) return;
 
-    if (!settings.geminiApiKey) {
-      alert('⚠️ Por favor, configure sua API Key do Gemini nas Configurações primeiro.\n\nA API do Gemini é gratuita! 🎉');
-      return;
-    }
-
     const userMessage = { role: 'user', content: question };
     setChatHistory(prev => [...prev, userMessage]);
     setQuestion('');
     setGenerating(true);
 
     try {
-      const answer = await answerQuestion(question, chatHistory);
+      const [measurements, workouts] = await Promise.all([
+        getMeasurements(user.id),
+        getWorkouts(user.id)
+      ]);
+      const answer = await answerQuestion(question, { user, measurements, workouts, history: chatHistory });
       const aiMessage = { role: 'assistant', content: answer };
       setChatHistory(prev => [...prev, aiMessage]);
     } catch (error) {
@@ -92,13 +86,7 @@ const AICoach = () => {
       
       let errorMessage = 'Desculpe, não consegui processar sua pergunta.';
       
-      if (error.message.includes('429')) {
-        errorMessage = '⚠️ Limite de requisições excedido. Aguarde alguns segundos e tente novamente.';
-      } else if (error.message.includes('401')) {
-        errorMessage = '🔑 API Key inválida ou expirada. Por favor, verifique sua chave nas Configurações.';
-      } else if (error.message.includes('API Key')) {
-        errorMessage = '⚠️ Erro na API Key. Verifique se está configurada corretamente nas Configurações.';
-      }
+      // Mensagens específicas de erro online removidas
       
       setChatHistory(prev => [...prev, { 
         role: 'assistant', 
