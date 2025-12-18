@@ -22,7 +22,7 @@ const Settings = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `fitmind-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `evofitcorp-backup-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
       setMessage('✓ Dados exportados com sucesso!');
@@ -41,7 +41,7 @@ const Settings = () => {
       // Título
       doc.setFontSize(20);
       doc.setTextColor(10, 132, 255);
-      doc.text('FitMind AI - Relatório Completo', 20, 20);
+      doc.text('EvoFitCorp - Relatório Completo', 20, 20);
       
       // Data
       doc.setFontSize(10);
@@ -119,7 +119,7 @@ const Settings = () => {
         });
       }
       
-      doc.save(`fitmind-relatorio-${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`evofitcorp-relatorio-${new Date().toISOString().split('T')[0]}.pdf`);
       setMessage('✓ PDF gerado com sucesso!');
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
@@ -163,7 +163,7 @@ const Settings = () => {
             </h1>
           </div>
           <p className="text-gray-400 dark:text-gray-400 font-body">
-            Personalize sua experiência no FitMind AI
+            Personalize sua experiência no EvoFitCorp
           </p>
         </div>
 
@@ -191,7 +191,7 @@ const Settings = () => {
             <h2 className="text-2xl font-display font-bold text-white dark:text-white">IA Offline</h2>
           </div>
           <p className="text-gray-300 dark:text-gray-300">
-            O FitMind agora utiliza um chatbot 100% offline baseado em regras e
+            O EvoFitCorp agora utiliza um chatbot 100% offline baseado em regras e
             cálculos locais (IMC, BMR, TDEE, tendências) para analisar suas
             medições, bioimpedância e treinos. Nenhuma API ou chave externa é
             necessária.
@@ -331,7 +331,7 @@ const Settings = () => {
           transition={{ delay: 0.3 }}
           className="mt-8 text-center text-sm text-gray-500"
         >
-          <p>FitMind AI v1.0.0</p>
+          <p>EvoFitCorp v1.0.0</p>
           <p>Desenvolvido com ❤️ para transformar sua jornada fitness</p>
         </motion.div>
       </motion.div>

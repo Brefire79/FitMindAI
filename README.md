@@ -1,11 +1,11 @@
-# 🏋️‍♂️ FitMind AI - Seu Coach Inteligente de Fitness
+# 🏋️‍♂️ EvoFitCorp - Seu Coach Inteligente de Fitness
 
-![FitMind AI](https://img.shields.io/badge/PWA-Ready-success)
+![EvoFitCorp](https://img.shields.io/badge/PWA-Ready-success)
 ![React](https://img.shields.io/badge/React-18.2-blue)
 ![Vite](https://img.shields.io/badge/Vite-5.0-yellow)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-cyan)
 
-**FitMind AI** é um aplicativo PWA (Progressive Web App) moderno e futurista para gerenciamento completo de dados físicos, medições corporais e treinos, com inteligência artificial integrada para recomendações personalizadas.
+**EvoFitCorp** é um aplicativo PWA (Progressive Web App) moderno e futurista para gerenciamento completo de dados físicos, medições corporais e treinos, com inteligência artificial integrada para recomendações personalizadas.
 
 ## ✨ Funcionalidades
 

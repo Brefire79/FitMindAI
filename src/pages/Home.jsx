@@ -79,7 +79,7 @@ const Home = () => {
           </motion.div>
 
           <h1 className="text-5xl md:text-7xl font-display font-black mb-6">
-            <span className="text-gradient-primary">FitMind</span>
+            <span className="text-gradient-primary">EvoFitCorp</span>
             <span className="text-white"> AI</span>
           </h1>
 

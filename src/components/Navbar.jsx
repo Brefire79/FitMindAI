@@ -38,7 +38,7 @@ const Navbar = () => {
             </motion.div>
             <div>
               <h1 className="text-xl font-display font-bold text-gradient-primary dark:text-gradient-primary">
-                FitMind AI
+                EvoFitCorp
               </h1>
               <p className="text-xs text-gray-400 dark:text-gray-400 font-body">Seu Coach Inteligente</p>
             </div>
